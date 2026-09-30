@@ -1,0 +1,50 @@
+{
+  "package": "com.luiz.wrplaybook",
+  "name": "Playbook WR",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "minAPILevel": 1,
+  "icon": "/common/logo.png",
+  "deviceTypeList": [
+    "watch"
+  ],
+  "features": [
+    {
+      "name": "system.router"
+    },
+    {
+      "name": "system.storage"
+    },
+    {
+      "name": "system.vibrator"
+    }
+  ],
+  "config": {
+    "logLevel": "log",
+    "designWidth": 216
+  },
+  "router": {
+    "entry": "Index",
+    "pages": {
+      "Index": {
+        "component": "index",
+        "path": "/"
+      },
+      "Workout": {
+        "component": "workout",
+        "path": "/workout"
+      },
+      "Rest": {
+        "component": "rest",
+        "path": "/rest"
+      },
+      "Water": {
+        "component": "water",
+        "path": "/water"
+      }
+    }
+  },
+  "display": {
+    "backgroundColor": "#000000"
+  }
+}

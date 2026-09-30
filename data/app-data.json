@@ -1,0 +1,1344 @@
+{
+ "units": {
+  "Arroz branco cozido": [
+   "escumadeira",
+   "escumadeiras",
+   100,
+   0.5,
+   false,
+   "arroz"
+  ],
+  "Feijão carioca cozido": [
+   "concha",
+   "conchas",
+   100,
+   0.5,
+   false,
+   "feijão"
+  ],
+  "Macarrão cozido": [
+   "pegador",
+   "pegadores",
+   110,
+   0.5,
+   false,
+   "macarrão"
+  ],
+  "Batata-doce cozida": [
+   "batata-doce média",
+   "batatas-doces médias",
+   150,
+   0.5,
+   true,
+   "batata-doce"
+  ],
+  "Batata inglesa cozida": [
+   "batata média",
+   "batatas médias",
+   130,
+   0.5,
+   true,
+   "batata"
+  ],
+  "Mandioca (aipim) cozida": [
+   "pedaço",
+   "pedaços",
+   80,
+   1,
+   false,
+   "mandioca"
+  ],
+  "Pão francês": [
+   "pão francês",
+   "pães franceses",
+   50,
+   1,
+   true,
+   "pão francês"
+  ],
+  "Pão de forma integral": [
+   "fatia",
+   "fatias",
+   25,
+   1,
+   false,
+   "pão integral"
+  ],
+  "Aveia em flocos": [
+   "colher de sopa",
+   "colheres de sopa",
+   15,
+   1,
+   false,
+   "aveia"
+  ],
+  "Peito de frango grelhado": [
+   "filé",
+   "filés",
+   120,
+   0.5,
+   false,
+   "frango grelhado"
+  ],
+  "Carne moída (patinho) refogada": [
+   "colher de servir",
+   "colheres de servir",
+   50,
+   1,
+   false,
+   "carne moída"
+  ],
+  "Tilápia grelhada": [
+   "filé",
+   "filés",
+   130,
+   0.5,
+   false,
+   "tilápia grelhada"
+  ],
+  "Atum em conserva (natural)": [
+   "lata",
+   "latas",
+   120,
+   0.5,
+   false,
+   "atum (drenado)"
+  ],
+  "Ovo cozido": [
+   "ovo cozido",
+   "ovos cozidos",
+   50,
+   1,
+   true,
+   "ovo cozido"
+  ],
+  "Leite integral (ml)": [
+   "copo",
+   "copos",
+   200,
+   0.5,
+   false,
+   "leite integral"
+  ],
+  "Iogurte natural integral": [
+   "pote",
+   "potes",
+   170,
+   0.5,
+   false,
+   "iogurte natural"
+  ],
+  "Queijo minas frescal": [
+   "fatia",
+   "fatias",
+   30,
+   1,
+   false,
+   "queijo minas"
+  ],
+  "Whey protein (típico)": [
+   "scoop",
+   "scoops",
+   30,
+   0.5,
+   false,
+   "whey protein"
+  ],
+  "Banana prata": [
+   "banana",
+   "bananas",
+   100,
+   0.5,
+   true,
+   "banana"
+  ],
+  "Maçã": [
+   "maçã",
+   "maçãs",
+   130,
+   0.5,
+   true,
+   "maçã"
+  ],
+  "Laranja pêra": [
+   "laranja",
+   "laranjas",
+   150,
+   0.5,
+   true,
+   "laranja"
+  ],
+  "Mel": [
+   "colher de sopa",
+   "colheres de sopa",
+   20,
+   0.5,
+   false,
+   "mel"
+  ],
+  "Pasta de amendoim": [
+   "colher de sopa",
+   "colheres de sopa",
+   15,
+   0.5,
+   false,
+   "pasta de amendoim"
+  ],
+  "Azeite de oliva": [
+   "colher de sopa",
+   "colheres de sopa",
+   12,
+   0.5,
+   false,
+   "azeite"
+  ],
+  "Castanha-do-pará": [
+   "castanha-do-pará",
+   "castanhas-do-pará",
+   4,
+   1,
+   true,
+   "castanha-do-pará"
+  ],
+  "Brócolis cozido": [
+   "pegador",
+   "pegadores",
+   60,
+   0.5,
+   false,
+   "brócolis"
+  ],
+  "Salada crua (alface, tomate, cenoura)": [
+   "prato de sobremesa",
+   "pratos de sobremesa",
+   80,
+   0.5,
+   false,
+   "salada crua"
+  ],
+  "Isotônico (ml)": [
+   "copo",
+   "copos",
+   250,
+   0.5,
+   false,
+   "isotônico"
+  ],
+  "Água de coco (ml)": [
+   "copo",
+   "copos",
+   200,
+   0.5,
+   false,
+   "água de coco"
+  ]
+ },
+ "gym": {
+  "A": {
+   "title": "Academia A – Inferior (segunda-feira)",
+   "sub": "Foco: força de perna, cadeia posterior (isquiotibiais/glúteos) e estabilidade. Duração: 60–75 min. Volta do fim de semana: comece leve se estiver dolorido.",
+   "warm": "Aquecimento (10 min): 5 min de bike/trote leve + mobilidade de quadril e tornozelo + 2 séries de agachamento com peso do corpo + 2×10 saltinhos rápidos (pogos).",
+   "exs": [
+    [
+     "Agachamento livre (back squat)",
+     4,
+     "5",
+     "2–3 min",
+     "7–8",
+     "Base da aceleração. Desça controlado, suba explosivo; calcanhares no chão e tronco firme. Se não tiver barra/rack, use agachamento goblet com halter pesado (4×8)."
+    ],
+    [
+     "Levantamento terra romeno (RDL)",
+     3,
+     "8",
+     "2 min",
+     "7–8",
+     "Fortalece isquiotibiais e glúteos – os músculos que mais se lesionam em sprints. Quadril para trás, costas neutras, barra colada nas pernas."
+    ],
+    [
+     "Afundo búlgaro (pé de trás no banco)",
+     3,
+     "8 por perna",
+     "90 s",
+     "7–8",
+     "Correr é uma ação de uma perna só: corrige assimetrias e dá estabilidade nos cortes."
+    ],
+    [
+     "Hip thrust",
+     3,
+     "10",
+     "90 s",
+     "8",
+     "Extensão de quadril = potência de saída. Pausa de 1 s no topo, sem arquear a lombar."
+    ],
+    [
+     "Nórdico (Nordic hamstring curl)",
+     3,
+     "5–6",
+     "2 min",
+     "8–9",
+     "Um dos exercícios com melhor evidência para prevenir lesão de isquiotibial. Desça o mais devagar possível; use as mãos para ajudar a subir."
+    ],
+    [
+     "Panturrilha em pé (elevação)",
+     4,
+     "12–15",
+     "60 s",
+     "8",
+     "Tendão de Aquiles e tornozelo fortes para frear e acelerar. Pausa de 1 s embaixo e no topo."
+    ],
+    [
+     "Pallof press (anti-rotação)",
+     3,
+     "10 por lado",
+     "60 s",
+     "7",
+     "Core que resiste à rotação: você recebe contato e muda de direção sem perder a postura."
+    ]
+   ],
+   "final": "Finalização (5 min): alongamento leve de quadril, quadríceps, isquiotibiais e panturrilha."
+  },
+  "B": {
+   "title": "Academia B – Superior + core + pegada (quarta-feira)",
+   "sub": "Foco: força de empurrar/puxar, ombros saudáveis, pegada e core. Duração: 60–70 min.",
+   "warm": "Aquecimento (8–10 min): 5 min de remo/corda + rotações de ombro + band pull-apart 2×15 + 1×10 flexões.",
+   "exs": [
+    [
+     "Supino reto (barra ou halteres)",
+     4,
+     "6",
+     "2–3 min",
+     "7–8",
+     "Força de empurrar: bloqueios e enfrentar o contato do defensor."
+    ],
+    [
+     "Remada curvada (barra ou halteres)",
+     4,
+     "8",
+     "2 min",
+     "8",
+     "Costas fortes protegem o ombro e melhoram o uso das mãos na saída da linha (release)."
+    ],
+    [
+     "Desenvolvimento com halteres",
+     3,
+     "8",
+     "90 s",
+     "7–8",
+     "Ombro forte e estável para bolas altas e contato."
+    ],
+    [
+     "Barra fixa (pull-up)",
+     3,
+     "6–8 (ou máx.)",
+     "2 min",
+     "8–9",
+     "Força relativa ao peso corporal, essencial para quem precisa ser rápido. Use elástico de assistência se necessário."
+    ],
+    [
+     "Face pull",
+     3,
+     "15",
+     "60 s",
+     "7",
+     "Saúde do ombro e postura (manguito e deltoide posterior)."
+    ],
+    [
+     "Rosca martelo + tríceps na corda (bi-set)",
+     3,
+     "12 + 12",
+     "60 s",
+     "7–8",
+     "Braços fortes ajudam a proteger a bola e nos contatos. Volume complementar."
+    ],
+    [
+     "Rosca de punho e rosca de punho reversa",
+     3,
+     "15",
+     "45 s",
+     "8",
+     "Antebraço e pegada: mãos firmes que seguram a bola sob contato."
+    ],
+    [
+     "Farmer's walk (caminhada do fazendeiro)",
+     3,
+     "30 m",
+     "60 s",
+     "8",
+     "Pegada + core + estabilidade do tronco."
+    ],
+    [
+     "Roda abdominal (ab wheel) ou dead bug",
+     3,
+     "8–10",
+     "60 s",
+     "7",
+     "Core anti-extensão: mantém a pelve estável durante sprints."
+    ]
+   ],
+   "final": "Finalização (5 min): alongar peitoral, dorsais e ombros."
+  },
+  "C": {
+   "title": "Academia C – Potência, saltos e prevenção (quinta-feira)",
+   "sub": "Foco: explosão, mudança de direção e prevenção de lesões (isquiotibiais, virilha, tornozelo). Duração: ~60 min. Sexta é leve: não leve nada até a falha hoje.",
+   "warm": "Aquecimento (10–12 min): 5 min de bike + mobilidade de quadril/tornozelo + 2×5 pogos + 2×3 saltos verticais submáximos.",
+   "exs": [
+    [
+     "Salto vertical (countermovement jump) – esforço máximo",
+     4,
+     "4",
+     "90 s",
+     "Máx.",
+     "Potência para pegar bolas no ponto mais alto e sair do chão. Qualidade > quantidade: pouso silencioso, joelhos alinhados."
+    ],
+    [
+     "Salto em distância parado (standing broad jump)",
+     3,
+     "3",
+     "90 s",
+     "Máx.",
+     "Potência horizontal = aceleração nos primeiros passos. Meça e anote a distância em 'Progresso'."
+    ],
+    [
+     "Kettlebell swing pesado (ou hang power clean, se tiver técnica/supervisão)",
+     4,
+     "8 (swing) / 3 (clean)",
+     "2 min",
+     "7–8",
+     "Potência de quadril. O hang clean só com técnica ensinada por treinador."
+    ],
+    [
+     "Levantamento terra convencional (barra reta)",
+     3,
+     "5",
+     "2–3 min",
+     "7",
+     "Força total da cadeia posterior. Carga moderada (deixe ~2–3 reps de reserva) para não acumular fadiga antes do sábado; costas neutras e barra colada nas pernas."
+    ],
+    [
+     "Step-up com halteres (caixote alto)",
+     3,
+     "8 por perna",
+     "90 s",
+     "7–8",
+     "Força unilateral e controle de joelho."
+    ],
+    [
+     "Salto lateral (skater jump)",
+     3,
+     "6 por lado",
+     "60 s",
+     "Máx.",
+     "Mudança de direção: absorver o impacto e empurrar lateralmente."
+    ],
+    [
+     "Arremesso de medicine ball (rotacional ou peito)",
+     3,
+     "6",
+     "60 s",
+     "Máx.",
+     "Potência de tronco e braços; ótimo para explosão."
+    ],
+    [
+     "Copenhagen plank (adutores)",
+     3,
+     "20 s por lado",
+     "60 s",
+     "7",
+     "Prevenção de lesão de virilha, comum em esportes com cortes."
+    ],
+    [
+     "Elevação de tibial anterior (encostado na parede)",
+     2,
+     "15",
+     "45 s",
+     "6",
+     "Canelas e tornozelo: ajudam na prevenção de dor na canela e no apoio da corrida."
+    ]
+   ],
+   "final": "Finalização (5–8 min): mobilidade de quadril/tornozelo. Sexta é leve – chegue descansado ao sábado."
+  }
+ },
+ "campo": {
+  "T": [
+   [
+    "Aquecimento",
+    "Trote leve + mobilidade dinâmica (leg swings, círculos de quadril, afundo andando)",
+    "8–10 min",
+    "—",
+    "Leve",
+    "Suba a temperatura aos poucos. Tornozelos, quadril e isquiotibiais bem soltos antes de correr forte."
+   ],
+   [
+    "Técnica de corrida",
+    "A-skip, B-skip, high knees, butt kicks",
+    "2 × 20 jardas cada",
+    "Voltar andando",
+    "Leve",
+    "Postura alta, apoio na bola do pé, cotovelos a 90°. Movimentos rápidos e precisos."
+   ],
+   [
+    "Ativação",
+    "Strides progressivos",
+    "3 × 30 jardas",
+    "Voltar andando",
+    "60% → 90%",
+    "Acelere gradualmente, sem forçar. Prepara o corpo para os sprints máximos."
+   ],
+   [
+    "Aceleração",
+    "Saídas de 10 jardas (posição de 3 apoios ou 2 apoios)",
+    "6 × 10 jardas",
+    "60–90 s",
+    "95–100%",
+    "Tronco inclinado ~45°, passos curtos e potentes, empurre o chão para trás. Alterne o pé da frente."
+   ],
+   [
+    "Velocidade",
+    "Sprint de 20 jardas",
+    "4 × 20 jardas",
+    "2 min",
+    "95–100%",
+    "Transição da aceleração para a postura ereta; mantenha relaxamento no rosto e ombros."
+   ],
+   [
+    "Velocidade máx.",
+    "Sprint de 40 jardas (o teste clássico do combine)",
+    "3 × 40 jardas",
+    "3 min",
+    "95–100%",
+    "Frequência alta de passada, ombros relaxados. Se perder qualidade, encerre o bloco."
+   ],
+   [
+    "Resistido",
+    "Sprint com elástico, trenó ou subida leve",
+    "4 × 15 jardas",
+    "2 min",
+    "90%",
+    "Carga leve (trenó ≤ ~10% do peso corporal) para não distorcer a técnica. Foco na projeção do corpo."
+   ],
+   [
+    "Volta à calma",
+    "Trote leve + alongamento de quadril, isquiotibiais e panturrilha",
+    "10 min",
+    "—",
+    "Leve",
+    "Respiração calma; desacelere gradualmente."
+   ]
+  ],
+  "S": [
+   [
+    "Aquecimento",
+    "Trote + mobilidade dinâmica + 2 strides",
+    "10 min",
+    "—",
+    "Leve",
+    "Sem cansar: hoje é dia de técnica, não de volume."
+   ],
+   [
+    "Pés rápidos",
+    "Escada de agilidade (4 padrões: 1 apoio, 2 apoios, Ickey shuffle, lateral)",
+    "2 × cada padrão",
+    "30 s",
+    "Moderada",
+    "Pés leves, olhar para frente. Qualidade de cada toque."
+   ],
+   [
+    "Agilidade",
+    "5-10-5 (pro agility)",
+    "4 (2 p/ cada lado)",
+    "90 s",
+    "85%",
+    "Baixe o centro de gravidade, toque a linha com a mão e explode para o lado oposto."
+   ],
+   [
+    "Agilidade",
+    "3-cone drill (L-drill)",
+    "4",
+    "90 s",
+    "85%",
+    "Curvas fechadas, cabeça e ombros liderando a curva. Anote o tempo em 'Progresso'."
+   ],
+   [
+    "Saída de break",
+    "Plant & drive (frear e sair) em cone",
+    "3 por lado",
+    "60 s",
+    "80–90%",
+    "Corte em 3 passos, sem arredondar. Firme o pé de fora e empurre o chão."
+   ],
+   [
+    "Rotas",
+    "Árvore de rotas: slant, out, curl, comeback, in/dig, post, corner, go",
+    "2 × cada rota",
+    "Voltar andando",
+    "70–85%",
+    "Com QB/parceiro: stem vertical agressivo, venda a rota (ombros/cabeça), quebra limpa, cabeça e olhos para a bola ao sair do break."
+   ],
+   [
+    "Mãos",
+    "Bola de tênis contra parede (mão alternada)",
+    "3 × 30 s",
+    "30 s",
+    "Moderada",
+    "Reação e coordenação olho-mão; mãos suaves."
+   ],
+   [
+    "Recepção",
+    "Catch drills: bola alta (high point), baixa, por cima do ombro, lateral (toe-tap na linha)",
+    "4 × 5 de cada tipo",
+    "45 s",
+    "Moderada",
+    "Olhos na bola até guardá-la (tuck), mãos em diamante, pegue com as mãos e não com o corpo. Proteja a bola após a recepção."
+   ],
+   [
+    "Pós-recepção",
+    "Recepção + corte + sprint curto (YAC – jardas após a recepção)",
+    "4 × 15 jardas",
+    "60 s",
+    "85%",
+    "Guarde a bola no braço de fora, mude de direção e acelere."
+   ],
+   [
+    "Mobilidade",
+    "Alongamento de quadril, isquiotibiais, panturrilha e ombros",
+    "10 min",
+    "—",
+    "Leve",
+    "Prepare o corpo para o sábado: relaxe e hidrate-se."
+   ]
+  ]
+ },
+ "sat": [
+  [
+   "Sexta à noite",
+   "Durma 8–9 h. Evite treino pesado de perna na sexta.",
+   "Jantar com carboidrato (arroz, macarrão, batata). Beba água ao longo do dia; nada de álcool."
+  ],
+  [
+   "07:30",
+   "Acordar com calma; café da manhã.",
+   "Cardápio Sábado: café da manhã (~1/5 das calorias do dia). Beba ~500 ml de água."
+  ],
+  [
+   "09:30",
+   "Refeição pré-treino principal (2h30 antes).",
+   "Carboidrato + proteína magra, pouca gordura e pouca fibra (evita desconforto). Não teste alimentos novos no dia do treino."
+  ],
+  [
+   "11:00",
+   "Chegar ao campo. Aquecimento individual (12–15 min), ver quadro abaixo.",
+   "Beba 300–500 ml de água/isotônico até o início."
+  ],
+  [
+   "11:15",
+   "Lanche leve (banana + mel + isotônico).",
+   "Carboidrato rápido 30–45 min antes."
+  ],
+  [
+   "12:00–16:00",
+   "TREINO DO TIME. Nas pausas, hidrate-se e volte a ativar (pequenas corridas) para não esfriar.",
+   "Água/isotônico em toda pausa (200–250 ml a cada 15–20 min). Carboidrato leve ao longo do treino: banana, isotônico, água de coco."
+  ],
+  [
+   "16:00–16:30",
+   "Volta à calma: trote leve 5 min + alongamento/mobilidade 5–10 min.",
+   "Continue bebendo. Pese-se antes e depois: para cada 1 kg perdido, reponha ~1,2–1,5 L de líquido nas horas seguintes."
+  ],
+  [
+   "16:30",
+   "Refeição pós-treino (até 1 h depois).",
+   "Carboidrato + proteína (ex.: arroz, feijão, carne) para recuperar glicogênio e músculo. Ver Cardápio Sábado."
+  ],
+  [
+   "19:45",
+   "Jantar leve a moderado.",
+   "Proteína + carboidrato + vegetais."
+  ],
+  [
+   "22:00",
+   "Ceia e dormir cedo.",
+   "Iogurte + aveia + castanhas. Meta: 8–9 h de sono."
+  ]
+ ],
+ "aq": [
+  [
+   1,
+   "Trote leve",
+   "3 min, ritmo confortável."
+  ],
+  [
+   2,
+   "Mobilidade dinâmica",
+   "Leg swings frontal e lateral (10 cada perna), círculos de quadril, afundo com rotação (6 por lado)."
+  ],
+  [
+   3,
+   "Técnica de corrida",
+   "A-skip e B-skip 2 × 20 m; carioca/shuffle lateral 2 × 20 m."
+  ],
+  [
+   4,
+   "Ativação de glúteo e isquiotibial",
+   "Ponte de glúteo com 1 perna (10 por lado) ou caminhada com mini band (10 passos por lado)."
+  ],
+  [
+   5,
+   "Strides progressivos",
+   "3 × 30 m, de 60% a 90%."
+  ],
+  [
+   6,
+   "Específico de WR",
+   "2 acelerações de 10 jardas + 2 saídas de break (plant & drive) + 2 recepções fáceis."
+  ]
+ ],
+ "foods": [
+  [
+   "Arroz branco cozido",
+   128,
+   2.5,
+   28.1,
+   0.2,
+   "1 escumadeira ≈ 100 g"
+  ],
+  [
+   "Feijão carioca cozido",
+   76,
+   4.8,
+   13.6,
+   0.5,
+   "1 concha ≈ 100 g"
+  ],
+  [
+   "Macarrão cozido",
+   102,
+   3.4,
+   19.9,
+   0.5,
+   "1 pegador ≈ 110 g"
+  ],
+  [
+   "Batata-doce cozida",
+   77,
+   0.6,
+   18.4,
+   0.1,
+   "1 média ≈ 150–200 g"
+  ],
+  [
+   "Batata inglesa cozida",
+   52,
+   1.2,
+   11.9,
+   0.0,
+   "1 média ≈ 130 g"
+  ],
+  [
+   "Mandioca (aipim) cozida",
+   125,
+   0.6,
+   30.1,
+   0.3,
+   "1 pedaço médio ≈ 80 g"
+  ],
+  [
+   "Pão francês",
+   300,
+   8.0,
+   58.6,
+   3.1,
+   "1 unidade ≈ 50 g"
+  ],
+  [
+   "Pão de forma integral",
+   253,
+   9.4,
+   49.9,
+   3.7,
+   "1 fatia ≈ 25 g"
+  ],
+  [
+   "Aveia em flocos",
+   394,
+   13.9,
+   66.6,
+   8.5,
+   "1 colher de sopa ≈ 15 g"
+  ],
+  [
+   "Peito de frango grelhado",
+   159,
+   32.0,
+   0.0,
+   2.5,
+   "1 filé médio ≈ 120 g"
+  ],
+  [
+   "Carne moída (patinho) refogada",
+   219,
+   35.9,
+   0.0,
+   7.3,
+   "1 colher de servir ≈ 50 g"
+  ],
+  [
+   "Tilápia grelhada",
+   128,
+   26.0,
+   0.0,
+   2.7,
+   "1 filé médio ≈ 130 g"
+  ],
+  [
+   "Atum em conserva (natural)",
+   116,
+   25.5,
+   0.0,
+   0.8,
+   "1 lata drenada ≈ 120 g"
+  ],
+  [
+   "Ovo cozido",
+   146,
+   13.3,
+   0.6,
+   9.5,
+   "1 ovo ≈ 50 g"
+  ],
+  [
+   "Leite integral (ml)",
+   61,
+   3.2,
+   4.6,
+   3.3,
+   "1 copo ≈ 200 ml"
+  ],
+  [
+   "Iogurte natural integral",
+   51,
+   4.1,
+   1.9,
+   3.0,
+   "1 pote ≈ 170 g"
+  ],
+  [
+   "Queijo minas frescal",
+   264,
+   17.4,
+   3.2,
+   20.2,
+   "1 fatia ≈ 30 g"
+  ],
+  [
+   "Whey protein (típico)",
+   400,
+   80.0,
+   8.0,
+   6.0,
+   "1 scoop ≈ 30 g (confira seu rótulo)"
+  ],
+  [
+   "Banana prata",
+   98,
+   1.3,
+   26.0,
+   0.1,
+   "1 unidade ≈ 80–100 g (sem casca)"
+  ],
+  [
+   "Maçã",
+   56,
+   0.3,
+   15.2,
+   0.4,
+   "1 média ≈ 130 g"
+  ],
+  [
+   "Laranja pêra",
+   37,
+   1.0,
+   8.9,
+   0.1,
+   "1 média ≈ 150 g"
+  ],
+  [
+   "Mel",
+   309,
+   0.4,
+   84.0,
+   0.0,
+   "1 colher de sopa ≈ 20 g"
+  ],
+  [
+   "Pasta de amendoim",
+   590,
+   25.0,
+   20.0,
+   50.0,
+   "1 colher de sopa ≈ 15 g (confira o rótulo)"
+  ],
+  [
+   "Azeite de oliva",
+   884,
+   0.0,
+   0.0,
+   100.0,
+   "1 colher de sopa ≈ 12 g"
+  ],
+  [
+   "Castanha-do-pará",
+   643,
+   14.5,
+   15.1,
+   63.5,
+   "1 unidade ≈ 4 g"
+  ],
+  [
+   "Brócolis cozido",
+   25,
+   2.1,
+   4.4,
+   0.5,
+   "1 pegador ≈ 60 g"
+  ],
+  [
+   "Salada crua (alface, tomate, cenoura)",
+   20,
+   1.0,
+   4.0,
+   0.2,
+   "1 prato de sobremesa ≈ 80 g"
+  ],
+  [
+   "Isotônico (ml)",
+   24,
+   0.0,
+   6.0,
+   0.0,
+   "garrafa ≈ 500 ml"
+  ],
+  [
+   "Água de coco (ml)",
+   22,
+   0.0,
+   5.3,
+   0.0,
+   "1 copo ≈ 200 ml"
+  ]
+ ],
+ "plans": {
+  "treino": [
+   [
+    "Café da manhã",
+    "07:30",
+    [
+     [
+      "Pão de forma integral",
+      50
+     ],
+     [
+      "Ovo cozido",
+      150
+     ],
+     [
+      "Leite integral (ml)",
+      200
+     ],
+     [
+      "Banana prata",
+      100
+     ],
+     [
+      "Aveia em flocos",
+      30
+     ]
+    ]
+   ],
+   [
+    "Lanche da manhã",
+    "10:00",
+    [
+     [
+      "Iogurte natural integral",
+      85
+     ],
+     [
+      "Whey protein (típico)",
+      15
+     ],
+     [
+      "Maçã",
+      130
+     ],
+     [
+      "Mel",
+      20
+     ]
+    ]
+   ],
+   [
+    "Almoço",
+    "12:30",
+    [
+     [
+      "Arroz branco cozido",
+      250
+     ],
+     [
+      "Feijão carioca cozido",
+      50
+     ],
+     [
+      "Peito de frango grelhado",
+      180
+     ],
+     [
+      "Salada crua (alface, tomate, cenoura)",
+      80
+     ],
+     [
+      "Azeite de oliva",
+      6
+     ]
+    ]
+   ],
+   [
+    "Pré-treino (1h30 antes)",
+    "15:00",
+    [
+     [
+      "Pão francês",
+      50
+     ],
+     [
+      "Atum em conserva (natural)",
+      60
+     ],
+     [
+      "Banana prata",
+      150
+     ]
+    ]
+   ],
+   [
+    "Pós-treino / jantar",
+    "19:15",
+    [
+     [
+      "Macarrão cozido",
+      220
+     ],
+     [
+      "Carne moída (patinho) refogada",
+      100
+     ],
+     [
+      "Brócolis cozido",
+      60
+     ],
+     [
+      "Azeite de oliva",
+      12
+     ]
+    ]
+   ],
+   [
+    "Ceia",
+    "22:00",
+    [
+     [
+      "Iogurte natural integral",
+      170
+     ],
+     [
+      "Castanha-do-pará",
+      16
+     ]
+    ]
+   ]
+  ],
+  "sab": [
+   [
+    "Café da manhã",
+    "07:30",
+    [
+     [
+      "Pão francês",
+      50
+     ],
+     [
+      "Ovo cozido",
+      150
+     ],
+     [
+      "Leite integral (ml)",
+      100
+     ],
+     [
+      "Banana prata",
+      100
+     ]
+    ]
+   ],
+   [
+    "Pré-treino principal (2h30 antes)",
+    "09:30",
+    [
+     [
+      "Arroz branco cozido",
+      200
+     ],
+     [
+      "Peito de frango grelhado",
+      180
+     ],
+     [
+      "Batata-doce cozida",
+      150
+     ],
+     [
+      "Brócolis cozido",
+      60
+     ],
+     [
+      "Azeite de oliva",
+      6
+     ]
+    ]
+   ],
+   [
+    "Lanche leve (30–45 min antes)",
+    "11:15",
+    [
+     [
+      "Banana prata",
+      100
+     ],
+     [
+      "Mel",
+      10
+     ],
+     [
+      "Isotônico (ml)",
+      250
+     ]
+    ]
+   ],
+   [
+    "Durante o treino (12h–16h)",
+    "12:00–16:00",
+    [
+     [
+      "Isotônico (ml)",
+      500
+     ],
+     [
+      "Água de coco (ml)",
+      400
+     ],
+     [
+      "Banana prata",
+      100
+     ]
+    ]
+   ],
+   [
+    "Pós-treino (até 1h após)",
+    "16:30",
+    [
+     [
+      "Arroz branco cozido",
+      250
+     ],
+     [
+      "Feijão carioca cozido",
+      50
+     ],
+     [
+      "Carne moída (patinho) refogada",
+      100
+     ],
+     [
+      "Salada crua (alface, tomate, cenoura)",
+      80
+     ],
+     [
+      "Azeite de oliva",
+      12
+     ],
+     [
+      "Laranja pêra",
+      150
+     ]
+    ]
+   ],
+   [
+    "Jantar",
+    "19:45",
+    [
+     [
+      "Macarrão cozido",
+      110
+     ],
+     [
+      "Tilápia grelhada",
+      130
+     ],
+     [
+      "Brócolis cozido",
+      60
+     ],
+     [
+      "Azeite de oliva",
+      6
+     ]
+    ]
+   ],
+   [
+    "Ceia",
+    "22:00",
+    [
+     [
+      "Iogurte natural integral",
+      170
+     ],
+     [
+      "Aveia em flocos",
+      30
+     ],
+     [
+      "Castanha-do-pará",
+      12
+     ]
+    ]
+   ]
+  ],
+  "desc": [
+   [
+    "Café da manhã",
+    "08:30",
+    [
+     [
+      "Pão francês",
+      50
+     ],
+     [
+      "Ovo cozido",
+      150
+     ],
+     [
+      "Queijo minas frescal",
+      30
+     ],
+     [
+      "Leite integral (ml)",
+      100
+     ],
+     [
+      "Laranja pêra",
+      150
+     ]
+    ]
+   ],
+   [
+    "Lanche da manhã",
+    "11:00",
+    [
+     [
+      "Iogurte natural integral",
+      170
+     ],
+     [
+      "Whey protein (típico)",
+      30
+     ],
+     [
+      "Aveia em flocos",
+      30
+     ]
+    ]
+   ],
+   [
+    "Almoço",
+    "13:30",
+    [
+     [
+      "Arroz branco cozido",
+      200
+     ],
+     [
+      "Feijão carioca cozido",
+      100
+     ],
+     [
+      "Peito de frango grelhado",
+      120
+     ],
+     [
+      "Salada crua (alface, tomate, cenoura)",
+      80
+     ],
+     [
+      "Azeite de oliva",
+      12
+     ]
+    ]
+   ],
+   [
+    "Lanche da tarde",
+    "16:30",
+    [
+     [
+      "Pão de forma integral",
+      50
+     ],
+     [
+      "Atum em conserva (natural)",
+      60
+     ],
+     [
+      "Banana prata",
+      100
+     ]
+    ]
+   ],
+   [
+    "Jantar",
+    "20:00",
+    [
+     [
+      "Batata-doce cozida",
+      225
+     ],
+     [
+      "Carne moída (patinho) refogada",
+      100
+     ],
+     [
+      "Brócolis cozido",
+      120
+     ],
+     [
+      "Azeite de oliva",
+      6
+     ]
+    ]
+   ],
+   [
+    "Ceia",
+    "22:30",
+    [
+     [
+      "Iogurte natural integral",
+      170
+     ],
+     [
+      "Castanha-do-pará",
+      12
+     ]
+    ]
+   ]
+  ]
+ }
+}

@@ -1,0 +1,111 @@
+<template>
+  <div class="page">
+    <text class="time">{{label}}</text>
+    <text class="hint">{{hint}}</text>
+    <div class="row">
+      <div class="chip" @click="start(45)"><text class="ct">0:45</text></div>
+      <div class="chip" @click="start(60)"><text class="ct">1:00</text></div>
+      <div class="chip" @click="start(90)"><text class="ct">1:30</text></div>
+    </div>
+    <div class="row">
+      <div class="chip" @click="start(120)"><text class="ct">2:00</text></div>
+      <div class="chip" @click="start(180)"><text class="ct">3:00</text></div>
+      <div class="chip" @click="add15"><text class="ct">+15s</text></div>
+    </div>
+    <div class="stop" @click="stop"><text class="st">Zerar</text></div>
+  </div>
+</template>
+
+<style>
+  .page {
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    background-color: #000000;
+    width: 216px;
+  }
+  .time { font-size: 50px; color: #f5c400; }
+  .hint { font-size: 12px; color: #9aa0a6; margin-bottom: 8px; }
+  .row { flex-direction: row; justify-content: center; margin-top: 6px; }
+  .chip {
+    width: 62px;
+    height: 40px;
+    margin-left: 3px;
+    margin-right: 3px;
+    border-radius: 20px;
+    background-color: #1d3a2b;
+    align-items: center;
+    justify-content: center;
+  }
+  .ct { font-size: 15px; color: #ffffff; }
+  .stop {
+    width: 190px;
+    height: 38px;
+    margin-top: 10px;
+    border-radius: 19px;
+    background-color: #33403a;
+    align-items: center;
+    justify-content: center;
+  }
+  .st { font-size: 15px; color: #ffffff; }
+</style>
+
+<script>
+  import vibrator from '@system.vibrator'
+
+  function fmt(s) {
+    const m = Math.floor(s / 60)
+    const r = s % 60
+    return m + ':' + (r < 10 ? '0' + r : r)
+  }
+
+  export default {
+    private: {
+      label: '0:00',
+      hint: 'Toque para iniciar',
+      end: 0
+    },
+    onInit() {
+      this.timer = null
+    },
+    start(sec) {
+      this.end = Date.now() + sec * 1000
+      this.hint = 'Descansando…'
+      this.begin()
+    },
+    add15() {
+      if (this.end > Date.now()) {
+        this.end = this.end + 15000
+        this.tick()
+      } else {
+        this.start(15)
+      }
+    },
+    begin() {
+      if (this.timer) { clearInterval(this.timer) }
+      const self = this
+      this.tick()
+      this.timer = setInterval(function () { self.tick() }, 250)
+    },
+    tick() {
+      const left = Math.max(0, Math.ceil((this.end - Date.now()) / 1000))
+      this.label = fmt(left)
+      if (left === 0 && this.timer) {
+        clearInterval(this.timer)
+        this.timer = null
+        this.hint = 'Próxima série!'
+        vibrator.vibrate({ mode: 'long' })
+        setTimeout(function () { vibrator.vibrate({ mode: 'long' }) }, 700)
+      }
+    },
+    stop() {
+      if (this.timer) { clearInterval(this.timer); this.timer = null }
+      this.end = 0
+      this.label = '0:00'
+      this.hint = 'Toque para iniciar'
+    },
+    onDestroy() {
+      if (this.timer) { clearInterval(this.timer); this.timer = null }
+    }
+  }
+</script>

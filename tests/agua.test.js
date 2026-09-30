@@ -1,0 +1,33 @@
+const {JSDOM,VirtualConsole}=require('jsdom');const fs=require('fs');
+const {FILE,mockDate,seedStore}=require('./helpers');
+const html=fs.readFileSync(process.argv[2]||FILE,'utf8');
+const errs=[];const vc=new VirtualConsole();vc.on('jsdomError',e=>errs.push(String(e.detail&&e.detail.stack||e.message)));
+const dom=new JSDOM(html,{runScripts:'dangerously',url:'https://example.test/',virtualConsole:vc,pretendToBeVisual:true,beforeParse(w){mockDate(w);seedStore(w);w.scrollTo=()=>{};}});
+const w=dom.window,d=w.document;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms)),click=e=>e.dispatchEvent(new w.MouseEvent('click',{bubbles:true}));
+const ok=(c,m)=>console.log((c?'OK   ':'FALHA ')+m);
+const total=()=>d.querySelector('.card-h .big').textContent;
+const cap=()=>[...d.querySelectorAll('.card .tag')].map(t=>t.textContent).find(t=>/ml de/.test(t));
+(async()=>{
+  await sleep(300);
+  ok(total()==='0,00','começa em 0: '+total());
+  click(d.querySelector('[data-act="water"][data-n="500"]'));await sleep(20);
+  ok(total()==='0,50','+500 ml -> '+total()+' | '+cap());
+  d.getElementById('wadd').value='350';click(d.querySelector('[data-act="wadd"]'));await sleep(20);
+  ok(total()==='0,85','+350 ml personalizado -> '+total());
+  d.getElementById('wadd').value='0';click(d.querySelector('[data-act="wadd"]'));await sleep(20);
+  ok(total()==='0,85','valor inválido é recusado (toast: '+d.getElementById('toast').textContent+')');
+  d.getElementById('wset').value='1800';click(d.querySelector('[data-act="wset"]'));await sleep(20);
+  ok(total()==='1,80','corrigir total para 1800 ml -> '+total()+' | '+cap());
+  console.log('  botão desfazer:',d.querySelector('[data-act="wundo"]').textContent);
+  click(d.querySelector('[data-act="wundo"]'));await sleep(20);
+  ok(total()==='0,85','desfazer a correção volta a 0,85: '+total());
+  click(d.querySelector('[data-act="wundo"]'));await sleep(20);click(d.querySelector('[data-act="wundo"]'));await sleep(20);
+  ok(total()==='0,00'&&!d.querySelector('[data-act="wundo"]'),'desfazer tudo zera e esconde o botão: '+total());
+  d.getElementById('wset').value='3400';click(d.querySelector('[data-act="wset"]'));await sleep(20);
+  ok(/meta batida/.test(cap()),'3400 ml bate a meta: '+cap());
+  // persistência
+  const saved=JSON.parse(w.localStorage.getItem('wr_playbook_v1'));const k=Object.keys(saved).find(x=>x.startsWith('d_'));
+  ok(saved[k].water===3400,'salvo no aparelho: '+saved[k].water+' ml, log '+JSON.stringify(saved[k].wlog));
+  console.log('ERROS:',errs.length?errs:'nenhum');process.exit(0);
+})();

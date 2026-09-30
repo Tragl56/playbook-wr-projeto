@@ -1,0 +1,84 @@
+<template>
+  <div class="page">
+    <text class="day">{{dayName}}</text>
+    <text class="sess">{{sessName}}</text>
+    <text class="prog">{{progress}}</text>
+    <div class="btn primary" @click="goWorkout">
+      <text class="bt-dark">Treino</text>
+    </div>
+    <div class="btn" @click="goRest">
+      <text class="bt">Descanso</text>
+    </div>
+    <div class="btn" @click="goWater">
+      <text class="bt">Água {{waterL}} L</text>
+    </div>
+  </div>
+</template>
+
+<style>
+  .page {
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 12px;
+    background-color: #000000;
+    width: 216px;
+  }
+  .day { font-size: 13px; color: #9aa0a6; }
+  .sess { font-size: 19px; color: #ffffff; margin-top: 2px; }
+  .prog { font-size: 13px; color: #f5c400; margin-top: 2px; margin-bottom: 8px; }
+  .btn {
+    width: 190px;
+    height: 42px;
+    margin-top: 7px;
+    border-radius: 21px;
+    background-color: #1d3a2b;
+    align-items: center;
+    justify-content: center;
+  }
+  .primary { background-color: #f5c400; }
+  .bt { font-size: 16px; color: #ffffff; }
+  .bt-dark { font-size: 16px; color: #1b1500; }
+</style>
+
+<script>
+  import router from '@system.router'
+  import plan from '../../common/plan.js'
+  import { load, todayKey } from '../../common/store.js'
+
+  const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+
+  export default {
+    private: {
+      dayName: '',
+      sessName: '',
+      progress: '',
+      waterL: '0,00'
+    },
+    onInit() {
+      this.refresh()
+    },
+    onShow() {
+      this.refresh()
+    },
+    refresh() {
+      const d = new Date()
+      const day = plan.days[d.getDay()]
+      const key = todayKey()
+      this.dayName = DIAS[d.getDay()] + ', ' + d.getDate() + '/' + (d.getMonth() + 1)
+      this.sessName = day.name
+      const total = day.items.length
+      const self = this
+      load('wr_done_' + key, '[]', function (arr) {
+        let n = 0
+        for (let i = 0; i < arr.length; i++) { if (arr[i]) n++ }
+        self.progress = n + ' de ' + total + ' feitos'
+      })
+      load('wr_water_' + key, '0', function (ml) {
+        self.waterL = (Number(ml) / 1000).toFixed(2).replace('.', ',')
+      })
+    },
+    goWorkout() { router.push({ uri: '/workout' }) },
+    goRest() { router.push({ uri: '/rest' }) },
+    goWater() { router.push({ uri: '/water' }) }
+  }
+</script>

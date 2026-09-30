@@ -1,0 +1,91 @@
+<template>
+  <div class="page">
+    <text class="title">{{title}}</text>
+    <text class="count">{{doneCount}} de {{total}}</text>
+    <list class="list">
+      <list-item type="ex" for="{{items}}" class="row" onclick="toggle($idx)">
+        <text class="{{$item.cls}}">{{$item.mark}}  {{$item.name}}</text>
+        <text class="det">{{$item.det}}</text>
+      </list-item>
+    </list>
+  </div>
+</template>
+
+<style>
+  .page {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 8px 0 8px;
+    background-color: #000000;
+    width: 216px;
+  }
+  .title { font-size: 17px; color: #ffffff; }
+  .count { font-size: 13px; color: #f5c400; margin-bottom: 4px; }
+  .list { width: 200px; height: 200px; }
+  .row {
+    width: 200px;
+    height: 52px;
+    flex-direction: column;
+    justify-content: center;
+    border-bottom-width: 1px;
+    border-bottom-color: #22392e;
+  }
+  .nm { font-size: 15px; color: #ffffff; }
+  .done { font-size: 15px; color: #5fd08a; }
+  .det { font-size: 12px; color: #9aa0a6; margin-top: 2px; }
+</style>
+
+<script>
+  import vibrator from '@system.vibrator'
+  import plan from '../../common/plan.js'
+  import { load, save, todayKey } from '../../common/store.js'
+
+  export default {
+    private: {
+      title: '',
+      key: '',
+      total: 0,
+      doneCount: 0,
+      flags: [],
+      items: []
+    },
+    onInit() {
+      const day = plan.days[new Date().getDay()]
+      this.title = day.name
+      this.total = day.items.length
+      this.key = 'wr_done_' + todayKey()
+      const self = this
+      load(this.key, '[]', function (arr) {
+        const flags = []
+        for (let i = 0; i < day.items.length; i++) { flags.push(!!arr[i]) }
+        self.flags = flags
+        self.render()
+      })
+    },
+    render() {
+      const day = plan.days[new Date().getDay()]
+      const out = []
+      let n = 0
+      for (let i = 0; i < day.items.length; i++) {
+        const on = this.flags[i]
+        if (on) n++
+        out.push({
+          name: day.items[i][0],
+          det: day.items[i][1],
+          cls: on ? 'done' : 'nm',
+          mark: on ? 'OK' : '--'
+        })
+      }
+      this.items = out
+      this.doneCount = n
+    },
+    toggle(idx) {
+      const flags = this.flags.slice()
+      flags[idx] = !flags[idx]
+      this.flags = flags
+      save(this.key, flags)
+      this.render()
+      vibrator.vibrate({ mode: 'short' })
+    }
+  }
+</script>

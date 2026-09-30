@@ -1,0 +1,23 @@
+{
+  "name": "playbook-wr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playbook WR: app de treino, alimentação, água e evolução para um wide receiver (PWA em JavaScript puro).",
+  "scripts": {
+    "data": "python3 spreadsheet/build_xlsx.py && python3 scripts/export_data.py",
+    "data:app": "python3 scripts/export_data.py",
+    "build": "node scripts/build.mjs",
+    "test": "node tests/run.js",
+    "serve": "node scripts/serve.mjs",
+    "check": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "html-minifier-terser": "^7.2.0",
+    "jsdom": "^30.1.1",
+    "terser": "^5.51.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

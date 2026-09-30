@@ -1,0 +1,67 @@
+<template>
+  <div class="page">
+    <text class="big">{{litros}} L</text>
+    <text class="goal">meta {{meta}} L · {{pct}}%</text>
+    <div class="btn primary" @click="change(250)"><text class="bt-dark">+250 ml</text></div>
+    <div class="btn" @click="change(-250)"><text class="bt">-250 ml</text></div>
+  </div>
+</template>
+
+<style>
+  .page {
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 12px;
+    background-color: #000000;
+    width: 216px;
+  }
+  .big { font-size: 46px; color: #ffffff; }
+  .goal { font-size: 13px; color: #9aa0a6; margin-bottom: 12px; }
+  .btn {
+    width: 190px;
+    height: 44px;
+    margin-top: 8px;
+    border-radius: 22px;
+    background-color: #1d3a2b;
+    align-items: center;
+    justify-content: center;
+  }
+  .primary { background-color: #f5c400; }
+  .bt { font-size: 17px; color: #ffffff; }
+  .bt-dark { font-size: 17px; color: #1b1500; }
+</style>
+
+<script>
+  import vibrator from '@system.vibrator'
+  import plan from '../../common/plan.js'
+  import { load, save, todayKey } from '../../common/store.js'
+
+  export default {
+    private: {
+      litros: '0,00',
+      meta: '3,4',
+      pct: 0,
+      ml: 0,
+      key: ''
+    },
+    onInit() {
+      this.key = 'wr_water_' + todayKey()
+      this.meta = (plan.goalWater / 1000).toFixed(1).replace('.', ',')
+      const self = this
+      load(this.key, '0', function (v) {
+        self.ml = Number(v) || 0
+        self.show()
+      })
+    },
+    show() {
+      this.litros = (this.ml / 1000).toFixed(2).replace('.', ',')
+      this.pct = Math.round(this.ml / plan.goalWater * 100)
+    },
+    change(n) {
+      this.ml = Math.max(0, this.ml + n)
+      save(this.key, this.ml)
+      this.show()
+      vibrator.vibrate({ mode: 'short' })
+    }
+  }
+</script>
