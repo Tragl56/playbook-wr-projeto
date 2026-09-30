@@ -6,7 +6,7 @@
    git add -A && git commit -m "descreva a mudança"
    git push
    ```
-2. Na Vercel: **Add New… > Project**, importe o repositório. O `vercel.json` já define:
+2. Na Vercel, o projeto `playbook-wr` já está ligado a esse repositório (Settings > Git). O `vercel.json` define:
    - Install: `npm install`
    - Build: `npm run build`
    - Output: `dist/site`

@@ -5,8 +5,8 @@ Ordem sugerida. Cada item tem um critério para saber quando está pronto.
 ## 1. Privacidade: tirar os dados pessoais do código ✅ (30/09/2026)
 Perfil neutro no código + tela de configuração inicial (`vSetup`). A planilha lê o perfil de `spreadsheet/perfil.local.json`, que fica fora do Git. Teste: `tests/setup.test.js`.
 
-## 2. Repositório + Vercel por Git
-Repositório: `github.com/Tragl56/playbook-wr-projeto` (código enviado). Falta: importar o repositório na Vercel (veja `docs/DEPLOY.md`). **Pronto quando:** um `git push` publica o site e o CI fica verde.
+## 2. Repositório + Vercel por Git ✅ (30/09/2026)
+Repositório `github.com/Tragl56/playbook-wr-projeto` ligado ao projeto `playbook-wr` da Vercel: cada `git push` para `main` publica o site.
 
 ## 3. Ajuste de metas pela tendência do peso
 Com 2 a 3 semanas de pesagens (`S.weights`), calcule a variação por semana e mostre na aba Evolução um aviso: perdendo rápido demais (mais que ~1% do peso por semana), sem perder, ou dentro da faixa, com uma sugestão de ajuste de calorias. Nunca aplicar sozinho: só sugerir.
