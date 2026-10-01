@@ -397,6 +397,11 @@ function fotoFood(it){const n=it.alimento;return n&&(FOOD[n]||TACO[n])?n:'';}
 // kcal e macros do item para `g` gramas: tabela (base/Meus/TACO) quando houver; senão a estimativa da foto
 function fotoMac(it,g){const n=fotoFood(it);if(n)return mac(n,g);const r=it.gramas>0?g/it.gramas:0;return{k:it.kcal*r,p:it.proteina*r,c:it.carbo*r,g:it.gordura*r};}
 function fotoTotal(){const t={k:0,p:0,c:0,g:0};((S.foto&&S.foto.itens)||[]).forEach(it=>{if(it.sel)add(t,fotoMac(it,it.g));});return t;}
+// calorias, proteína, gordura e carboidrato do que está marcado, em números grandes
+function fotoSumHtml(){const t=fotoTotal();
+  return [['k',nf(t.k),'kcal'],['p',nfg(t.p),'g proteína'],['g',nfg(t.g),'g gordura'],['c',nfg(t.c),'g carbo']].map(([k,v,l])=>`<div><b data-k="${k}">${v}</b><span>${l}</span></div>`).join('');}
+const nfg=v=>nf(v,v<10?1:0); // gramas: 1 casa abaixo de 10 (0,3 g de gordura não vira 0)
+const fotoItTxt=m=>`${nf(m.k)} kcal · P ${nfg(m.p)} g · G ${nfg(m.g)} g · C ${nfg(m.c)} g`;
 function fotoCard(){
   const F=S.foto;
   let h=`<section class="card" id="foto" style="margin-top:12px"><div class="card-h"><h3>Foto do prato</h3></div>`;
@@ -410,12 +415,11 @@ function fotoCard(){
   if(F.st==='busy') return h+`<p class="tag" style="margin-top:8px" role="status">Analisando a foto… pode levar até 30 segundos.</p></section>`;
   if(F.st==='err') return h+`<div class="ins warn"><span class="ic">!</span><span>${esc(F.msg)}</span></div><div class="btnrow" style="margin-top:10px"><label class="btn filebtn">Tentar outra foto<input id="fotoin" class="vh" type="file" accept="image/*"></label><button class="btn ghost" data-act="foto-clear">Fechar</button></div></section>`;
   if(!F.itens.length) return h+`<div class="ins info"><span class="ic">i</span><span>${esc(F.obs||'Não encontrei alimentos na foto.')}</span></div><div class="btnrow" style="margin-top:10px"><label class="btn filebtn">Tentar outra foto<input id="fotoin" class="vh" type="file" accept="image/*"></label><button class="btn ghost" data-act="foto-clear">Fechar</button></div></section>`;
-  h+=`<p class="tag" style="margin-top:8px">Confira os itens e ajuste os gramas. Desmarque o que não comeu.</p>`;
+  h+=`<p class="tag" style="margin-top:10px">Neste prato (itens marcados):</p><div class="fotosum" id="ptot">${fotoSumHtml()}</div>
+    <p class="tag" style="margin-top:12px">Confira os itens e ajuste os gramas. Desmarque o que não comeu.</p>`;
   F.itens.forEach((it,i)=>{const m=fotoMac(it,it.g),src=fotoFood(it)?(TACO[fotoFood(it)]&&!FOOD[fotoFood(it)]?'TACO':'tabela do app'):'estimativa da foto';
     h+=`<div class="fotoit${it.sel?'':' off'}"><label class="fchk"><input type="checkbox" id="pc${i}" ${it.sel?'checked':''}><span><b>${esc(it.nome)}</b><span class="tag">${esc(src)}${fotoFood(it)&&norm(fotoFood(it))!==norm(it.nome)?': '+esc(fotoFood(it)):''}</span></span></label>
-      <label class="f"><span>Gramas</span><input id="pg${i}" type="number" inputmode="decimal" min="1" max="3000" step="1" value="${Math.round(it.g)}"></label><span class="tag" id="pk${i}">${nf(m.k)} kcal · ${nf(m.p)} g prot.</span></div>`;});
-  const t=fotoTotal();
-  h+=`<p style="margin-top:10px" id="ptot"><b>Total marcado: ${nf(t.k)} kcal</b> <span class="tag">· ${nf(t.p)} g prot. · ${nf(t.c)} g carbo · ${nf(t.g)} g gord.</span></p>`;
+      <label class="f"><span>Gramas</span><input id="pg${i}" type="number" inputmode="decimal" min="1" max="3000" step="1" value="${Math.round(it.g)}"></label><span class="tag" id="pk${i}">${fotoItTxt(m)}</span></div>`;});
   if(F.obs) h+=`<p class="tag" style="margin-top:4px">Obs.: ${esc(F.obs)}</p>`;
   h+=`<div class="btnrow" style="margin-top:12px"><button class="btn" data-act="foto-add">Adicionar ao dia</button><button class="btn ghost" data-act="foto-clear">Descartar</button></div>
     <p class="tag" style="margin-top:8px">É uma estimativa por foto: pode errar a quantidade, principalmente de óleo e molhos.</p></section>`;
@@ -423,8 +427,8 @@ function fotoCard(){
 }
 // atualiza kcal do item e o total sem recriar a tela (o teclado não fecha)
 function fotoRefresh(i){
-  const it=S.foto.itens[i],m=fotoMac(it,it.g),el=$('#pk'+i);if(el)el.textContent=`${nf(m.k)} kcal · ${nf(m.p)} g prot.`;
-  const t=fotoTotal(),tot=$('#ptot');if(tot)tot.innerHTML=`<b>Total marcado: ${nf(t.k)} kcal</b> <span class="tag">· ${nf(t.p)} g prot. · ${nf(t.c)} g carbo · ${nf(t.g)} g gord.</span>`;
+  const it=S.foto.itens[i],m=fotoMac(it,it.g),el=$('#pk'+i);if(el)el.textContent=fotoItTxt(m);
+  const tot=$('#ptot');if(tot)tot.innerHTML=fotoSumHtml();
   const row=$('#pc'+i);if(row)row.closest('.fotoit').classList.toggle('off',!it.sel);
 }
 // reduz a foto para no máximo 1280 px (JPEG) antes de enviar

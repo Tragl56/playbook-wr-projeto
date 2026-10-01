@@ -24,6 +24,7 @@ const toast = () => d.getElementById('toast').textContent;
 const saved = () => JSON.parse(w.localStorage.getItem('wr_playbook_v1'));
 const kcal = () => Number(d.querySelector('.fieldcap .big').textContent.replace(/\./g, ''));
 const card = () => d.getElementById('foto');
+const tot = (k) => d.querySelector(`#ptot [data-k="${k}"]`).textContent;
 async function sendPhoto() {
   const inp = d.getElementById('fotoin');
   Object.defineProperty(inp, 'files', { configurable: true, value: [new w.File(['x'], 'prato.jpg', { type: 'image/jpeg' })] });
@@ -56,14 +57,15 @@ const setIn = (id, v, ev) => { const e = d.getElementById(id); if (ev === 'chang
   ok(rows.length === 3 && d.querySelector('.fotothumb'), 'mostra a foto e os 3 itens para conferir');
   ok(/192 kcal/.test(d.getElementById('pk0').textContent) && /TACO/.test(rows[0].textContent), 'arroz usa o valor da TACO (150 g = 192 kcal), não a estimativa');
   ok(/160 kcal/.test(d.getElementById('pk2').textContent) && /estimativa da foto/.test(rows[2].textContent), 'farofa sem correspondência usa a estimativa da foto');
-  ok(/Total marcado: 543 kcal/.test(d.getElementById('ptot').textContent), 'total de tudo marcado (192 + 191 + 160): ' + d.getElementById('ptot').textContent);
+  ok(tot('k') === '543' && tot('p') === '44' && tot('g') === '10' && tot('c') === '64', `resumo do prato em destaque: ${tot('k')} kcal, ${tot('p')} g proteína, ${tot('g')} g gordura, ${tot('c')} g carbo (192 + 191 + 160 kcal)`);
+  ok(/^192 kcal · P 3,8 g · G 0,3 g · C 42 g$/.test(d.getElementById('pk0').textContent), 'cada item mostra kcal, proteína, gordura e carbo: ' + d.getElementById('pk0').textContent);
   ok(/Óleo da farofa/.test(card().textContent), 'mostra a observação');
 
   const pg2 = d.getElementById('pg2');
   setIn('pg2', '80', 'input');
   ok(d.getElementById('pg2') === pg2 && /320 kcal/.test(d.getElementById('pk2').textContent), 'mudar os gramas recalcula na hora sem recriar a tela (farofa 80 g = 320 kcal)');
   setIn('pc1', false, 'change');
-  ok(rows[1].classList.contains('off') && /Total marcado: 512 kcal/.test(d.getElementById('ptot').textContent), 'desmarcar o frango tira do total: ' + d.getElementById('ptot').textContent);
+  ok(rows[1].classList.contains('off') && tot('k') === '512', 'desmarcar o frango tira do resumo: ' + tot('k') + ' kcal');
 
   const k0 = kcal();
   click(d.querySelector('[data-act="foto-add"]')); await sleep(20);
