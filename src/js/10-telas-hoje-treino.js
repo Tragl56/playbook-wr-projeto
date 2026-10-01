@@ -15,7 +15,7 @@ function weekCard(){
   for(let i=0;i<7;i++){
     const d=addDays(mon,i);if(d>now)break;const k=ymd(d),dk=S.days[k]||{};
     if(d.getDay()!==0)planned++;
-    if(dk.done&&Object.keys(dk.done).some(x=>dk.done[x]&&x!=='FLAG'&&x!=='DOM'))trained++;
+    if(isTrain(dk))trained++;
     if(dk.done&&dk.done.FLAG)flag++;
     if(dk.eaten&&Object.keys(dk.eaten).some(x=>dk.eaten[x])){const c=consumed(k);nd++;kc+=c.k;pr+=c.p;wg+=T[typeOf(d)].k;}
     if(dk.water>0){wn++;wt+=dk.water;}
@@ -76,6 +76,7 @@ function vHoje(){
       ${fd?'':`<p class="tag" style="margin-top:8px"><b style="color:var(--ink)">Refeição:</b> o jantar planejado é às 19:15, muito perto do jogo. Se for jogar, faça algo leve com carboidrato por volta das 18:30 (por exemplo 1 pão francês e 1 banana) e deixe o jantar completo para depois do jogo.</p>`}
       <div class="btnrow" style="margin-top:12px"><button class="btn ghost" data-act="goto-treino" data-id="FLAG">${fd?'Ver atividade':'Abrir checklist'}</button>${fd?'':`<button class="btn" data-act="finish" data-id="FLAG">Fui jogar</button>`}</div></section>`;
   }
+  h+=testsDueHtml();
   const bd=bkDue();
   if(bd) h+=`<section class="card" style="margin-top:12px" id="bkrem"><div class="card-h"><h3>Hora do backup</h3></div><p class="tag">Faz ${bd} dias sem backup. Seus dados ficam só neste aparelho: se o app for apagado, o histórico vai junto.</p>
     <div class="btnrow" style="margin-top:12px"><button class="btn" data-act="bk-file">Salvar backup</button><button class="btn ghost" data-act="bk-later">Lembrar em 7 dias</button></div></section>`;
@@ -154,6 +155,7 @@ function vTreino(){
   else if(cur!==todayId) h+=`<div class="note">Você está vendo <b>${esc(ss.name)}</b>, que não é o treino de hoje. O que você marcar aqui fica registrado com a data de hoje. <button class="btn ghost sm" style="margin-top:8px;display:block" data-act="sess" data-id="${todayId}">Ir para o treino de hoje</button></div>`;
   h+=`<div class="sessbar"><div class="row2"><span id="prog"><b>${sp.dn}</b> de ${sp.tot} ${sp.unit}</span><span id="sesst" class="clock">${sessClock()}</span><span id="progpct">${pc}%</span></div><div class="pb"><i id="progbar" style="width:${pc}%"></i></div></div>`;
   if(done) h+=sessSummary(ss,dk,wk);
+  if(!done&&['gym','campo','time'].includes(ss.kind)) h+=readinessHtml();
   if(wk===4&&ss.kind==='gym') h+=`<div class="note"><b>Semana de descarga.</b> Use cargas cerca de 10% menores e 1 série a menos por exercício. As séries abaixo já mostram o número reduzido.</div>`;
   if(ss.id==='C'&&new Date().getDay()===4){const yd=S.days[ymd(addDays(new Date(),-1))];if(yd&&yd.done&&yd.done.FLAG)h+=`<div class="note"><b>Ontem teve flag à noite.</b> Se as pernas ou os isquiotibiais estiverem pesados, faça uma série a menos nos saltos e no terra e mantenha a qualidade. Não force a carga hoje.</div>`;}
   if(S.profile.obj==='Definir'&&ss.kind==='gym') h+=`<div class="note">Você está em déficit: o objetivo é manter as cargas dos exercícios principais. Só suba peso se as séries saírem limpas e você estiver recuperado.</div>`;
@@ -186,17 +188,17 @@ function gymHtml(ss,dk,wk){
   const firstInc=info.findIndex(x=>!x.done);
   let h=checkRow('WU-'+ss.id,!!(dk.chk&&dk.chk['WU-'+ss.id]),'Aquecimento',g.warm);
   g.exs.forEach((e,i)=>{
-    const [name,s,rep,desc,rpe,tip]=e,inf=info[i],sl=inf.sl,n=inf.n,last=lastSet(sl),saved=sets[sl]||[];
+    const [name,s,rep,desc,rpe,tip]=e,inf=info[i],sl=inf.sl,n=inf.n,last=lastSet(sl),saved=sets[sl]||[],st=stepOf(sl);
     const open=S.exOpen[sl]!==undefined?S.exOpen[sl]:i===firstInc,repPre=(String(rep).match(/^\d+/)||[''])[0];
     const pair=PAIRS[name],nums=String(rep).match(/\d+/g)||[],repPre2=nums[1]||nums[0]||'';
     let sug='',sug2='',hint='';
     if(last){
       let k=Number(last.kg);const top=Math.max(0,...(String(rep).match(/\d+/g)||[0]).map(Number));
-      if(wk===4){k=Math.round(k*0.9/2.5)*2.5;hint=`hoje: ${nf(k,1)} kg (descarga)`;}
-      else if(top>0&&Number(last.reps)>=top) hint=S.profile.obj==='Definir'?`hoje: ${nf(k,1)} kg; se sobrar reserva, tente ${nf(k+2.5,1)} kg`:`hoje: tente ${nf(k+2.5,1)} kg`;
+      if(wk===4){k=roundStep(k*0.9,st);hint=`hoje: ${nf(k,1)} kg (descarga)`;}
+      else if(top>0&&Number(last.reps)>=top) hint=S.profile.obj==='Definir'?`hoje: ${nf(k,1)} kg; se sobrar reserva, tente ${nf(k+st,1)} kg`:`hoje: tente ${nf(k+st,1)} kg`;
       else hint=`hoje: ${nf(k,1)} kg`;
       sug=k;
-      if(pair){const k2=last.kg2!==undefined&&last.kg2!==''?Number(last.kg2):'';sug2=k2===''?'':(wk===4?Math.round(k2*0.9/2.5)*2.5:k2);hint=`hoje: ${nf(k,1)} kg${sug2!==''?' e '+nf(sug2,1)+' kg':''}${wk===4?' (descarga)':''}`;}
+      if(pair){const k2=last.kg2!==undefined&&last.kg2!==''?Number(last.kg2):'';sug2=k2===''?'':(wk===4?roundStep(k2*0.9,st):k2);hint=`hoje: ${nf(k,1)} kg${sug2!==''?' e '+nf(sug2,1)+' kg':''}${wk===4?' (descarga)':''}`;}
     }
     let rows='';
     for(let j=0;j<n;j++){
@@ -221,9 +223,9 @@ function gymHtml(ss,dk,wk){
       <span class="grow"><span class="nm">${esc(name)}</span><span class="meta"><b class="tgt">${n} × ${esc(rep)}</b> · descanso ${esc(desc)} · RPE ${esc(rpe)}</span></span>
       <span class="dots">${Array.from({length:n},(_,j)=>`<i class="${j<inf.dn?'on':''}"></i>`).join('')}</span>${IC.chev}</button>
       <div class="ex-b">${last?(pair?`<p class="last">Última vez: ${esc(pair[0])} ${nf(last.kg,1)} kg × ${esc(last.reps||'?')}${last.kg2!==undefined&&last.kg2!==''?' · '+esc(pair[1])+' '+nf(last.kg2,1)+' kg × '+esc(last.reps2||'?'):''} · ${esc(hint)}</p>`:`<p class="last">Última vez: ${nf(last.kg,1)} kg × ${esc(last.reps||'?')} · ${esc(hint)}</p>`):'<p class="last muted">Primeira vez neste exercício: comece leve e anote a carga.</p>'}
-      ${pair?[1,2].map(w=>`<div class="loadrow"><span class="tag">Carga das séries que faltam: ${esc(pair[w-1])}</span><div class="stepper sm"><button class="btn ghost sm sq kgb" data-act="kgadj" data-w="${w}" data-d="-2.5" aria-label="Diminuir 2,5 kg em ${esc(pair[w-1])}">−2,5</button><button class="btn ghost sm sq kgb" data-act="kgadj" data-w="${w}" data-d="2.5" aria-label="Aumentar 2,5 kg em ${esc(pair[w-1])}">+2,5</button></div></div>`).join(''):`<div class="loadrow"><span class="tag">Carga das séries que faltam</span><div class="stepper sm"><button class="btn ghost sm sq kgb" data-act="kgadj" data-d="-2.5" aria-label="Diminuir 2,5 kg">−2,5</button><button class="btn ghost sm sq kgb" data-act="kgadj" data-d="2.5" aria-label="Aumentar 2,5 kg">+2,5</button></div></div>`}
+      ${pair?[1,2].map(w=>`<div class="loadrow"><span class="tag">Carga das séries que faltam: ${esc(pair[w-1])}</span>${stepBtns(st,w,pair[w-1])}</div>`).join(''):`<div class="loadrow"><span class="tag">Carga das séries que faltam</span>${stepBtns(st)}</div>`}<label class="steprow"><span class="tag">Passo de carga deste exercício</span><select data-step="${sl}" aria-label="Passo de carga de ${esc(name)}">${STEPS.map(v=>`<option value="${v}" ${v===st?'selected':''}>${nf(v,v%1?1:0)} kg</option>`).join('')}</select></label>
       ${pair?`<p class="tag" style="margin:2px 0 8px">Cada série tem duas linhas: a de cima é <b style="color:var(--ink)">${esc(pair[0])}</b> e a de baixo (B) é <b style="color:var(--ink)">${esc(pair[1])}</b>. Toque no ✓ quando terminar os dois.</p>`:''}<div class="cols"><span></span><span>Carga (kg)</span><span>Repetições</span><span></span></div>${rows}
-      <details><summary>Como executar</summary><p>${esc(tip)}</p></details></div></section>`;
+      <details><summary>Como executar</summary><p>${esc(tip)}</p></details><details class="hist"><summary>Histórico</summary>${exHistHtml(name)}</details></div></section>`;
   });
   h+=`<div class="note">${esc(g.final)}</div>`;
   return h;
@@ -250,3 +252,68 @@ function restHtml(ss,dk){
   return h;
 }
 
+
+/* ---------- PASSO DE CARGA POR EXERCÍCIO ---------- */
+const STEPS=[1,2,2.5,5];
+const stepOf=sl=>Number((S.profile.steps||{})[sl])||2.5;
+const roundStep=(k,st)=>Math.round(k/st)*st;
+function stepBtns(st,w,who){
+  const s=nf(st,st%1?1:0),wa=w?` data-w="${w}"`:'',on=who?` em ${esc(who)}`:'';
+  return `<div class="stepper sm"><button class="btn ghost sm sq kgb" data-act="kgadj"${wa} data-d="${-st}" aria-label="Diminuir ${s} kg${on}">−${s}</button><button class="btn ghost sm sq kgb" data-act="kgadj"${wa} data-d="${st}" aria-label="Aumentar ${s} kg${on}">+${s}</button></div>`;
+}
+
+/* ---------- FORÇA ESTIMADA E HISTÓRICO ---------- */
+// Força estimada (Epley): carga × (1 + repetições/30); acima de 12 repetições a fórmula exagera, então limita em 12.
+const e1rm=(kg,reps)=>{kg=Number(kg)||0;reps=Number(reps)||0;if(kg<=0||reps<=0)return 0;return reps===1?kg:kg*(1+Math.min(reps,12)/30);};
+// Melhor série de cada dia do exercício. Sem carga (ex.: barra fixa só com o peso do corpo) usa as repetições.
+function exSeries(sl,two){
+  const K=two?'kg2':'kg',R=two?'reps2':'reps',out=[];
+  Object.keys(S.days).sort().forEach(d=>{
+    const ok=((S.days[d].sets||{})[sl]||[]).filter(x=>x&&x.done);if(!ok.length)return;
+    let b=null;ok.forEach(x=>{const v=e1rm(x[K],x[R]);if(v>0&&(!b||v>b.v))b={d,v,kg:Number(x[K]),reps:Number(x[R])};});
+    if(b)out.push(b);else{const r=Math.max(0,...ok.map(x=>Number(x[R])||0));if(r>0)out.push({d,v:r,kg:0,reps:r,bw:true});}
+  });
+  return out.some(x=>!x.bw)?out.filter(x=>!x.bw):out;
+}
+const fmtSet=(kg,reps)=>Number(kg)>0?`${nf(kg,kg%1?1:0)} kg × ${reps||'?'}`:`${reps||'?'} reps`;
+function exHistHtml(name){
+  const sl=slug(name),pair=PAIRS[name];
+  const days=Object.keys(S.days).filter(d=>((S.days[d].sets||{})[sl]||[]).some(x=>x&&x.done)).sort().reverse();
+  if(!days.length)return `<p class="tag" style="margin-top:6px">Ainda sem séries registradas neste exercício.</p>`;
+  const ser=exSeries(sl),bw=ser.length&&ser[0].bw,sp=ser.length>=2?spark(ser.slice(-12).map(x=>x.v),(bw?'Repetições máximas':'Força estimada')+' em '+name,'h'+sl):'';
+  let h=sp?`<p class="tag" style="margin-top:6px">${bw?'Repetições na melhor série':'Força estimada (kg)'} · últimas ${Math.min(12,ser.length)} sessões</p>${sp}`:'';
+  h+=days.slice(0,6).map(d=>{
+    const ok=S.days[d].sets[sl].filter(x=>x&&x.done),b=ser.find(x=>x.d===d);
+    const txt=ok.map(x=>fmtSet(x.kg,x.reps)+(pair&&x.kg2!==undefined&&x.kg2!==''?' + '+fmtSet(x.kg2,x.reps2):'')).join(' · ');
+    return `<div class="hrow"><span>${fdate(d)}</span><span class="grow">${esc(txt)}</span>${b&&!b.bw?`<b>${nf(b.v)} kg</b>`:''}</div>`;
+  }).join('');
+  if(!bw&&ser.length)h+=`<p class="tag" style="margin-top:6px">À direita, a força estimada da melhor série do dia.</p>`;
+  return h;
+}
+
+/* ---------- PRONTIDÃO DO DIA (sono e FC de repouso de hoje) ---------- */
+function readiness(){
+  const hl=healthOf(ymd()),sl=hl.sleep,rhr=hl.rhr;if(typeof sl!=='number'&&typeof rhr!=='number')return null;
+  const base=[];for(let i=1;i<=14;i++){const v=healthOf(ymd(addDays(new Date(),-i))).rhr;if(typeof v==='number')base.push(v);}
+  const diff=typeof rhr==='number'&&base.length>=4?rhr-avg(base):null;let lvl=0;const why=[];
+  if(typeof sl==='number'){if(sl<6){lvl+=2;why.push(`dormiu ${nf(sl,1)} h`);}else if(sl<7){lvl+=1;why.push(`dormiu ${nf(sl,1)} h`);}}
+  if(diff!=null){if(diff>=5){lvl+=2;why.push(`FC de repouso ${nf(diff)} bpm acima da sua média`);}else if(diff>=3){lvl+=1;why.push(`FC de repouso ${nf(diff)} bpm acima da sua média`);}}
+  return{lvl,why,sl,rhr,diff};
+}
+function readinessHtml(){
+  const r=readiness();
+  if(!r)return `<p class="tag" style="margin-top:12px" id="ready" data-lvl="-1">Prontidão: registre o sono e a FC de repouso de hoje na aba Hoje (Dados do relógio) para ver se é dia de forçar ou de pegar leve.</p>`;
+  const w=r.why.join(' e '),box=(c,ic,t)=>`<div class="ins ${c}" id="ready" data-lvl="${r.lvl}" style="margin-top:12px"><span class="ic">${ic}</span><span>${t}</span></div>`;
+  if(r.lvl>=3)return box('warn','!',`<b>Dia de pegar leve:</b> ${w}. Faça 1 série a menos nos exercícios principais e não suba carga. Se estiver doente, descanse.`);
+  if(r.lvl>=1)return box('info','i',`<b>Atenção:</b> ${w}. Treine normal, mas sem buscar recorde hoje.`);
+  const ok=[];if(typeof r.sl==='number')ok.push(`sono de ${nf(r.sl,1)} h`);if(r.diff!=null)ok.push('FC de repouso na sua média');
+  return box('ok','✓',`<b>Pronto para treinar:</b> ${ok.join(' e ')||'dados de hoje dentro do normal'}.`);
+}
+
+/* ---------- LEMBRETE DOS TESTES DE CAMPO (semana 4, de descarga) ---------- */
+function testsDueHtml(){
+  if(cycleWeek()!==4)return '';
+  const lim=ymd(addDays(new Date(),-21));if(S.tests.some(t=>t.d>=lim))return '';
+  return `<section class="card" style="margin-top:12px" id="testrem"><div class="card-h"><h3>Semana de testes</h3></div><p class="tag">Semana de descarga: bom momento para refazer os testes de campo (10 e 40 jardas, saltos vertical e horizontal, 5-10-5 e 3-cone) com as pernas descansadas.</p>
+    <button class="btn ghost block" style="margin-top:10px" data-act="goto-tests">Abrir testes de campo</button></section>`;
+}

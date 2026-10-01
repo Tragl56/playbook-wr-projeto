@@ -159,13 +159,12 @@ function weightChart(list){
     <text x="${l}" y="${H-6}" font-size="11" fill="var(--muted)">${fdate(a[0].d)}</text><text x="${W-r}" y="${H-6}" text-anchor="end" font-size="11" fill="var(--muted)">${fdate(a[a.length-1].d)}</text></svg>`;
 }
 function liftStats(){
-  return LIFTS.map(name=>{const sl=slug(name);let best=0,last=null,lastD='';
-    Object.keys(S.days).sort().forEach(d=>{const arr=(S.days[d].sets||{})[sl];if(!arr)return;const ok=arr.filter(x=>x&&x.done&&Number(x.kg)>0);if(!ok.length)return;const mxk=Math.max(...ok.map(x=>Number(x.kg)));best=Math.max(best,mxk);last=mxk;lastD=d;});
-    return{name:name.replace(/ \(.*\)$/,''),best,last,lastD};});
+  return LIFTS.map(name=>{const ser=exSeries(slug(name)),best=ser.reduce((m,x)=>Math.max(m,x.v),0),last=ser[ser.length-1]||null;
+    return{name:name.replace(/ \(.*\)$/,''),best,last,bw:!!(last&&last.bw)};});
 }
 function weekConsistency(){
   const out=[],m0=monday(new Date());
-  for(let w=3;w>=0;w--){const start=addDays(m0,-7*w);let n=0;for(let i=0;i<7;i++){const dk=S.days[ymd(addDays(start,i))];if(dk&&dk.done&&Object.values(dk.done).some(Boolean))n++;}out.push({label:`${pad(start.getDate())}/${pad(start.getMonth()+1)}`,n});}
+  for(let w=3;w>=0;w--){const start=addDays(m0,-7*w);let n=0;for(let i=0;i<7;i++){if(isTrain(S.days[ymd(addDays(start,i))]))n++;}out.push({label:`${pad(start.getDate())}/${pad(start.getMonth()+1)}`,n});}
   return out;
 }
 const avg=a=>{a=a.filter(x=>typeof x==='number'&&!isNaN(x));return a.length?a.reduce((s,x)=>s+x,0)/a.length:null;};
@@ -208,15 +207,18 @@ function vEvol(){
   if(S.profile.obj==='Definir') h+=`<p class="tag" style="margin-top:10px">Meta ao definir: perder cerca de 0,3 a 0,7 kg por semana sem perder força. Pese-se sempre no mesmo dia e horário.</p>`;
   [...ws].reverse().slice(0,4).forEach(x=>{h+=`<div class="lift" style="grid-template-columns:1fr auto auto"><span>${fdate(x.d)}</span><b>${nf(x.kg,1)} kg</b><button class="btn ghost sm" data-act="delw" data-d="${x.d}" aria-label="Apagar pesagem de ${fdate(x.d)}">Apagar</button></div>`;});
   h+=`</section>`;
+  h+=waistHtml();
   h+=`<div class="sh"><h2>Força nos básicos</h2></div><section class="card">`;
   const ls=liftStats();
-  if(ls.every(x=>!x.best)) h+=`<p class="empty">Registre suas séries na aba Treino para acompanhar a carga de cada exercício.</p>`;
+  if(ls.every(x=>!x.best)) h+=`<p class="empty">Registre suas séries na aba Treino para acompanhar a força de cada exercício.</p>`;
   else{
-    ls.forEach(x=>{const st=!x.best?'':x.last>=x.best*0.95?'ok':'warn';
-      h+=`<div class="lift"><b>${esc(x.name)}</b>${x.best?`<span class="kgs">${nf(x.last,1)}<small>melhor ${nf(x.best,1)} kg</small></span><span class="pill ${st==='ok'?'ok':''}" style="${st==='warn'?'background:var(--warn);color:#fff':''}">${st==='ok'?'Mantendo':'Abaixo'}</span>`:`<span class="muted">—</span><span></span>`}</div>`;});
-    h+=`<p class="tag" style="margin-top:8px">“Abaixo” significa que a última carga ficou mais de 5% abaixo do seu melhor. Se acontecer duas semanas seguidas, revise sono e calorias.</p>`;
+    ls.forEach(x=>{if(!x.best){h+=`<div class="lift"><b>${esc(x.name)}</b><span class="muted">—</span><span></span></div>`;return;}
+      const ok=x.last.v>=x.best*0.95,u=x.bw?' reps':' kg';
+      h+=`<div class="lift" style="grid-template-columns:1fr auto"><div><b>${esc(x.name)}</b><p class="tag">${x.bw?'repetições':'força estimada'}: <b class="fval">${nf(x.last.v)}${u}</b> · melhor ${nf(x.best)}${u}</p><p class="tag">última: ${esc(fmtSet(x.last.kg,x.last.reps))} (${fdate(x.last.d)})</p></div><span class="pill ${ok?'ok':''}" style="${ok?'':'background:var(--warn);color:#fff'}">${ok?'Mantendo':'Abaixo'}</span></div>`;});
+    h+=`<p class="tag" style="margin-top:8px">Força estimada = carga × (1 + repetições ÷ 30) da melhor série do dia (fórmula de Epley). Assim 80 kg × 8 vale mais que 80 kg × 5. “Abaixo” significa mais de 5% abaixo do seu melhor; se acontecer duas semanas seguidas, revise sono e calorias.</p>`;
   }
   h+=`</section>`;
+  h+=histPickHtml();
   const rc=recovery();
   h+=`<div class="sh"><h2>Recuperação</h2></div><section class="card">`;
   if(rc.rows.every(r=>r.sleep==null&&r.rhr==null&&r.kcal==null)) h+=`<p class="empty">Registre sono, frequência cardíaca de repouso e calorias ativas na aba Hoje para ver tendências e alertas de recuperação.</p>`;
@@ -231,17 +233,7 @@ function vEvol(){
     if(s2) h+=`<p class="tag" style="margin-top:10px">FC de repouso (bpm), 14 dias</p>${s2}`;
   }
   h+=`</section>`;
-  h+=`<div class="sh"><h2>Testes de campo</h2></div><section class="card"><div class="grid2">
-    <label class="f"><span>10 jardas (s)</span><input id="t10" type="number" inputmode="decimal" step="0.01"></label><label class="f"><span>40 jardas (s)</span><input id="t40" type="number" inputmode="decimal" step="0.01"></label>
-    <label class="f"><span>Salto vertical (cm)</span><input id="tvj" type="number" inputmode="decimal" step="0.5"></label><label class="f"><span>5-10-5 (s)</span><input id="tag5" type="number" inputmode="decimal" step="0.01"></label></div>
-    <button class="btn block" style="margin-top:12px" data-act="addt">Salvar testes de hoje</button>`;
-  if(S.tests.length){
-    const ts=[...S.tests].sort((a,b)=>a.d<b.d?1:-1),bmin=k=>Math.min(...S.tests.map(x=>x[k]).filter(v=>v>0)),bmax=k=>Math.max(...S.tests.map(x=>x[k]).filter(v=>v>0));
-    const b10=bmin('s10'),b40=bmin('s40'),bvj=bmax('vj'),bag=bmin('ag'),cell=(v,b)=>v>0?`<td class="${v===b?'best':''}">${nf(v,2)}</td>`:'<td>—</td>';
-    h+=`<table style="margin-top:14px"><thead><tr><th>Data</th><th>10j</th><th>40j</th><th>Salto</th><th>5-10-5</th></tr></thead><tbody>`+
-      ts.slice(0,6).map(x=>`<tr><td>${fdate(x.d)}</td>${cell(x.s10,b10)}${cell(x.s40,b40)}${cell(x.vj,bvj)}${cell(x.ag,bag)}</tr>`).join('')+`</tbody></table>`;
-  }
-  h+=`</section>`;
+  h+=testsHtml();
   const wc=weekConsistency();
   h+=`<div class="sh"><h2>Consistência</h2></div><section class="card"><p class="tag">Dias com treino concluído por semana (planejados: 6)</p><div class="wk">`+
     wc.map(w=>`<div class="col"><b>${w.n}</b><div class="bx"><i style="height:${Math.min(100,w.n/6*100)}%"></i></div><span>${w.label}</span></div>`).join('')+`</div></section>`;
@@ -324,7 +316,7 @@ async function bkCopy(){
 }
 function restoreBackup(txt){
   try{const o=JSON.parse(txt);if(!o||typeof o!=='object'||!o.profile)throw 0;S.days={};applyLoaded(o);
-    saveProfile();saveWeights();saveTests();Object.keys(S.days).forEach(saveDay);toast('Backup restaurado.');view();}
+    saveProfile();saveWeights();saveTests();saveMeasures();Object.keys(S.days).forEach(saveDay);toast('Backup restaurado.');view();}
   catch(err){toast('Backup inválido: confira se é o arquivo ou o texto certo.');}
 }
 
@@ -333,7 +325,7 @@ function restoreBackup(txt){
 function trend(){
   const p=S.profile,adj=p.trendAdj&&p.trendAdj.d,ws=[...S.weights].filter(w=>!adj||w.d>=adj).sort((a,b)=>a.d<b.d?-1:1);
   if(!ws.length)return{st:'pouco',n:0,dias:0};
-  const end=parseYmd(ws[ws.length-1].d),pts=ws.map(w=>({x:Math.round((parseYmd(w.d)-end)/86400000),y:w.kg})).filter(q=>q.x>=-28);
+  const end=parseYmd(ws[ws.length-1].d),pts=ws.map(w=>({d:w.d,x:Math.round((parseYmd(w.d)-end)/86400000),y:w.kg})).filter(q=>q.x>=-28);
   const dias=-pts[0].x;
   if(pts.length<3||dias<14)return{st:'pouco',n:pts.length,dias};
   const mx=pts.reduce((a,q)=>a+q.x,0)/pts.length,my=pts.reduce((a,q)=>a+q.y,0)/pts.length;
@@ -345,7 +337,7 @@ function trend(){
   else{st=rate<=-0.25?'caindo':rate>=0.25?'subindo':'ok';dir=st==='caindo'?1:st==='subindo'?-1:0;}
   // cerca de +175 kcal ou −125 kcal por dia, convertidos em passos de 0,05 nos fatores de atividade
   const base=tmb()*(ADJ[o]||1),dF=dir?dir*Math.max(0.05,Math.round((dir>0?175:125)/base/0.05)*0.05):0;
-  return{st,n:pts.length,dias,rate,pct,dir,dF:Math.round(dF*100)/100,dk:Math.round(dF*base/10)*10};
+  return{st,n:pts.length,dias,rate,pct,dir,dF:Math.round(dF*100)/100,dk:Math.round(dF*base/10)*10,from:pts[0].d};
 }
 function trendHtml(){
   const t=trend(),p=S.profile,sg=(v,d)=>(v>0?'+':'')+nf(v,d),adj=p.trendAdj;
@@ -368,8 +360,10 @@ function trendHtml(){
   }[p.obj]||{};
   const head=`Tendência de ${t.dias} dias (${t.n} pesagens): `;
   if(!t.dir) return box('ok',head+(msg[t.st]||''));
+  const wd=p.obj==='Definir'&&t.st==='parado'?waistDelta(t.from):null;
+  const wnote=wd!=null&&wd<=-1?` <b>Mas a sua cintura caiu ${nf(-wd,1)} cm no mesmo período:</b> sinal de perda de gordura com o peso segurando água. Vale esperar mais 1 a 2 semanas antes de cortar calorias.`:'';
   const T=targets().treino.k,dica=t.dir>0?'Prefira somar carboidrato (arroz, batata, banana).':'Corte primeiro beliscos e gordura; andar mais durante o dia também ajuda.';
-  return box('warn',head+(msg[t.st]||'')+` <b>Sugestão:</b> ${t.dir>0?'comer':'cortar'} cerca de ${nf(Math.abs(t.dk))} kcal por dia (meta do dia de treino: ${nf(T)} → ${nf(T+t.dk)} kcal). ${dica}`)+
+  return box(wnote?'info':'warn',head+(msg[t.st]||'')+wnote+` <b>Sugestão:</b> ${t.dir>0?'comer':'cortar'} cerca de ${nf(Math.abs(t.dk))} kcal por dia (meta do dia de treino: ${nf(T)} → ${nf(T+t.dk)} kcal). ${dica}`)+
     `<button class="btn ghost block" style="margin-top:8px" data-act="trend-apply" data-d="${t.dF}">Aplicar sugestão (${sg(t.dk,0)} kcal por dia)</button><p class="tag" style="margin-top:6px">Nada muda se você não tocar. O ajuste soma ${sg(t.dF,2)} nos fatores de atividade (Perfil &gt; Ajuste fino), e dá para desfazer lá.</p>`;
 }
 
@@ -383,4 +377,46 @@ function remindersHtml(){
     <details><summary>Como criar no app Lembretes</summary><ol class="steps"><li>Abra o app Lembretes e crie a lista "Playbook" (Adicionar Lista).</li><li>Toque em "Novo Lembrete" e escreva, por exemplo, "Água: ${nf(ml)} ml".</li><li>Toque no ⓘ, ative Data e Hora e escolha o horário.</li><li>Em Repetir, escolha Diariamente. Para refeições, use Personalizado &gt; Semanalmente e marque os dias (segunda a sexta, sábado ou domingo).</li><li>Repita para cada horário.</li></ol></details>
     <details><summary>Como criar no app Atalhos</summary><ol class="steps"><li>Abra Atalhos &gt; Automação &gt; + &gt; Hora do Dia.</li><li>Escolha o horário e a repetição (todo dia ou nos dias da semana) e marque Executar Imediatamente.</li><li>Toque em Seguinte &gt; Nova Automação em Branco &gt; Adicionar Ação e busque "Mostrar Notificação".</li><li>Escreva o texto do aviso (ex.: "Água: ${nf(ml)} ml") e conclua.</li><li>Repita para cada horário.</li></ol></details>
     <p class="tag" style="margin-top:8px">Não use links do site nos avisos: eles abrem no Safari, que guarda os dados separados do app instalado.</p></section>`;
+}
+
+/* ---------- TESTES DE CAMPO ---------- */
+// low: menor é melhor (tempo). id: campo do formulário.
+const TESTS=[{k:'s10',n:'10 jardas',u:'s',low:1,st:'0.01',id:'t10'},{k:'s40',n:'40 jardas',u:'s',low:1,st:'0.01',id:'t40'},
+  {k:'vj',n:'Salto vertical',u:'cm',low:0,st:'0.5',id:'tvj'},{k:'bj',n:'Salto horizontal',u:'cm',low:0,st:'1',id:'tbj'},
+  {k:'ag',n:'5-10-5',u:'s',low:1,st:'0.01',id:'tag5'},{k:'c3',n:'3-cone',u:'s',low:1,st:'0.01',id:'tc3'}];
+const tval=(t,v)=>t.u==='s'?nf(v,2)+' s':nf(v,v%1?1:0)+' cm';
+function testsHtml(){
+  let h=`<div class="sh" id="testes"><h2>Testes de campo</h2></div><section class="card"><p class="tag">Refaça a cada 4 semanas, de preferência na semana de descarga. Preencha só o que fez hoje.</p><div class="grid2" style="margin-top:10px">`+
+    TESTS.map(t=>`<label class="f"><span>${t.n} (${t.u})</span><input id="${t.id}" type="number" inputmode="decimal" step="${t.st}"></label>`).join('')+`</div>
+    <button class="btn block" style="margin-top:12px" data-act="addt">Salvar testes de hoje</button>`;
+  const ts=[...S.tests].sort((a,b)=>a.d<b.d?-1:1);
+  if(ts.length){
+    h+=`<div class="ttiles">`+TESTS.map(t=>{const vs=ts.filter(x=>x[t.k]>0);if(!vs.length)return `<div class="ttile"><b>${t.n}</b><span class="tag">ainda sem registro</span></div>`;
+      const last=vs[vs.length-1],best=t.low?Math.min(...vs.map(x=>x[t.k])):Math.max(...vs.map(x=>x[t.k])),isBest=last[t.k]===best&&vs.length>1;
+      const sp=vs.length>=2?spark(vs.slice(-8).map(x=>x[t.k]),t.n+' ao longo do tempo','t'+t.k):'';
+      return `<div class="ttile" data-k="${t.k}"><b>${t.n}</b><span class="tval">${tval(t,last[t.k])}${isBest?' ★':''}</span><span class="tag">${fdate(last.d)} · melhor ${tval(t,best)} · ${t.low?'menor':'maior'} é melhor</span>${sp}</div>`;}).join('')+`</div>`;
+    h+=`<details><summary>Todos os registros</summary>`+[...ts].reverse().map(x=>`<div class="hrow"><span>${fdate(x.d)}</span><span class="grow">${TESTS.filter(t=>x[t.k]>0).map(t=>`${t.n} ${tval(t,x[t.k])}`).join(' · ')}</span></div>`).join('')+`</details>`;
+  }
+  return h+`</section>`;
+}
+
+/* ---------- CINTURA ---------- */
+// variação da cintura (cm) desde a data `from` até a última medida; null sem 2 medidas no período
+function waistDelta(from){const m=[...S.measures].filter(x=>x.d>=from).sort((a,b)=>a.d<b.d?-1:1);return m.length>=2?Math.round((m[m.length-1].cm-m[0].cm)*10)/10:null;}
+function waistHtml(){
+  const m=[...S.measures].sort((a,b)=>a.d<b.d?-1:1),last=m[m.length-1];
+  let h=`<div class="sh"><h2>Cintura</h2></div><section class="card" id="cintura"><p class="tag">Em definição, a cintura mostra a perda de gordura quando a balança engana (água, sal, carboidrato). Meça 1 vez por semana, de manhã, na altura do umbigo, sem apertar a fita.</p>`;
+  if(last){const d0=m.length>1?m[0]:null,dl=d0?Math.round((last.cm-d0.cm)*10)/10:null;
+    h+=`<div class="wtop" style="margin-top:10px"><div><p class="tag">Última medida</p><span class="big">${nf(last.cm,1)}</span> <span class="muted">cm</span></div>${dl!=null?`<span class="pill ${dl<0?'ok':''}">${dl>0?'+':''}${nf(dl,1)} cm desde ${fdate(d0.d)}</span>`:''}</div>`;
+    if(m.length>=2)h+=spark(m.slice(-12).map(x=>x.cm),'Cintura ao longo do tempo','gw');}
+  h+=`<div class="grid2" style="margin-top:10px"><label class="f"><span>Data</span><input id="md" type="date" value="${ymd()}"></label><label class="f"><span>Cintura (cm)</span><input id="mc" type="number" inputmode="decimal" step="0.1" placeholder="${last?nf(last.cm,1):'ex.: 88,5'}"></label></div>
+    <button class="btn block" style="margin-top:12px" data-act="addm">Salvar medida</button>`;
+  [...m].reverse().slice(0,4).forEach(x=>{h+=`<div class="lift" style="grid-template-columns:1fr auto auto"><span>${fdate(x.d)}</span><b>${nf(x.cm,1)} cm</b><button class="btn ghost sm" data-act="delm" data-d="${x.d}" aria-label="Apagar medida de ${fdate(x.d)}">Apagar</button></div>`;});
+  return h+`</section>`;
+}
+
+/* ---------- HISTÓRICO DE QUALQUER EXERCÍCIO ---------- */
+function histPickHtml(){
+  const names=['A','B','C'].flatMap(id=>D.gym[id].exs.map(e=>e[0])),cur=names.includes(S.histEx)?S.histEx:names[0];
+  return `<div class="sh"><h2>Histórico por exercício</h2></div><section class="card" id="histex"><label class="f"><span>Exercício</span><select id="hx">${['A','B','C'].map(id=>`<optgroup label="Academia ${id}">${D.gym[id].exs.map(e=>`<option ${e[0]===cur?'selected':''}>${esc(e[0])}</option>`).join('')}</optgroup>`).join('')}</select></label>${exHistHtml(cur)}</section>`;
 }

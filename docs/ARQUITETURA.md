@@ -13,7 +13,8 @@ Sem framework: as telas são funções que devolvem HTML (template strings). `vi
 S = {
   profile,              // veja abaixo
   weights: [{d:'2026-09-30', kg:80}],
-  tests:   [{d, s10, s40, vj, ag}],        // 10 jardas, 40 jardas, salto vertical, 5-10-5
+  tests:   [{d, s10, s40, vj, bj, ag, c3}], // 10 e 40 jardas, salto vertical e horizontal (cm), 5-10-5, 3-cone (bj e c3 podem faltar em registros antigos)
+  measures: [{d, cm}],                     // cintura (documento `measures`, entra no backup)
   days:    { '2026-09-30': { ...dia } },
   tab, sess, planView, open:{}, exOpen:{}, // estado de tela (não é salvo)
   editFood, delFood,                       // edição em "Meus alimentos" (não é salvo)
@@ -24,13 +25,19 @@ S = {
 ### Perfil (`S.profile`)
 `peso, altura, idade, sexo, obj ('Definir'|'Manter'|'Ganhar massa'), prot (g/kg), fat{treino,sab,desc}, carb{treino,sab,desc} (g/kg), agua (ml/kg), cycleStart ('AAAA-MM-DD' da segunda da semana 1), custom[], customSeeded, pf (não usado)`.
 
-Campos opcionais: `lastBackup` (data do último backup salvo ou copiado), `bkSnooze` (até quando esconder o lembrete de backup), `trendAdj: {d, dF}` (data e valor do último ajuste aplicado pela tendência do peso; a tendência só usa pesagens a partir dessa data).
+Campos opcionais: `steps` (`{slug do exercício: passo de carga em kg}`, padrão 2,5), `lastBackup` (data do último backup salvo ou copiado), `bkSnooze` (até quando esconder o lembrete de backup), `trendAdj: {d, dF}` (data e valor do último ajuste aplicado pela tendência do peso; a tendência só usa pesagens a partir dessa data).
 
 **Tendência do peso (`trend()`):** reta (mínimos quadrados) das pesagens dos últimos 28 dias; precisa de 3 pesagens em 14 dias. Definir: rápido se perder 1% do peso ou mais por semana, parado se perder menos de 0,2 kg/sem. Ganhar massa: rápido acima de 0,5%/sem, parado abaixo de +0,1 kg/sem. Manter: fora de ±0,25 kg/sem. A sugestão (+~175 ou −~125 kcal) é convertida em passos de 0,05 nos fatores de atividade.
 
 **Tabela TACO:** `D.taco` = `[nome, grupo, kcal, proteína, carboidrato, gordura]` por 100 g (593 alimentos; `D.tacoCats` = nomes dos grupos). Gerada por `scripts/taco.py` a partir da planilha oficial (NEPA/UNICAMP, 4ª edição), conferida por SHA1; alimentos sem energia analisada ("*") ficam de fora. No app vira o mapa `TACO`, usado por `mac()` quando o nome não está em `FOOD`. Extras da TACO são gravados como `{f: nome, g: gramas}`.
 
 **Código de barras:** `barFind()` consulta `https://world.openfoodfacts.org/api/v2/product/<código>.json` (sem chave; libera acesso de outros sites) e preenche o formulário de "Meus alimentos" com a porção do rótulo (`serving_quantity`) ou 100 g. `S.prefill` guarda os valores mostrados e `S.formBase` os valores por 100 g, para recalcular quando o tamanho da unidade muda.
+
+**Força estimada:** `e1rm(kg, reps)` = carga × (1 + repetições/30), repetições limitadas a 12 (Epley). `exSeries(slug)` devolve a melhor série de cada dia; sem carga (barra fixa com o peso do corpo) usa repetições. Usada em "Força nos básicos" (Mantendo se a última ≥ 95% da melhor) e no histórico de cada exercício.
+
+**Prontidão (`readiness`)**: sono de hoje (< 6 h pesa 2, < 7 h pesa 1) e FC de repouso de hoje contra a média dos 14 dias anteriores (≥ 5 bpm pesa 2, ≥ 3 pesa 1). Total ≥ 3: pegar leve; 1 a 2: atenção; 0: pronto.
+
+**Consistência:** `isTrain(dia)` conta só treinos de verdade (flag e descanso ativo ficam de fora), igual no resumo da semana e no gráfico da Evolução.
 
 **Backup:** `Store.blob()` em JSON. "Salvar arquivo" usa o compartilhamento do sistema (`navigator.share` com arquivo) e, se não houver, baixa o arquivo. O lembrete na aba Hoje aparece com 30 dias sem backup, só quando os dados ficam no aparelho.
 

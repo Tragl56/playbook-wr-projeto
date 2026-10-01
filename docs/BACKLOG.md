@@ -35,7 +35,7 @@ Os testes atuais usam JSDOM. Acrescentar Playwright com capturas de tela (claro 
 
 ## 10. Melhorias de tela
 - Reordenar refeições em dia de flag (jantar leve antes e completo depois) como opção, não só como dica.
-- Ajuste de carga por exercício (passo de 1 kg ou 5 kg), para exercícios que não usam 2,5 kg.
+- ~~Ajuste de carga por exercício~~ ✅ (passo de 1, 2, 2,5 ou 5 kg em cada exercício).
 - Mais exercícios com duas cargas (`PAIRS`), se necessário.
 - Exportar histórico em CSV.
 - ~~Acessibilidade: `aria-live` no `<main>`~~ ✅ removido; ao trocar de aba o foco vai para o título.
@@ -43,6 +43,9 @@ Os testes atuais usam JSDOM. Acrescentar Playwright com capturas de tela (claro 
 
 ## Decidido (não refazer sem pedido do dono)
 - Foto do prato com IA (Claude via API): foi feita e **retirada a pedido do dono** em 30/09/2026. Não reintroduzir sem ele pedir.
+
+## 11. Treino e evolução ✅ (30/09/2026)
+Salto horizontal e 3-cone nos testes de campo; consistência sem flag/descanso; força estimada (Epley) em "Força nos básicos"; histórico de cada exercício (no Treino e na Evolução); prontidão do dia no Treino; lembrete dos testes na semana 4 e gráfico de cada teste; cintura (e a tendência do peso considera a cintura); passo de carga por exercício. Teste: `tests/evolucao.test.js`.
 
 ## Já feito (para não repetir)
 Configuração inicial sem dados pessoais no código · `npm run data` no Windows (`scripts/py.mjs`) · Cardápio em medidas caseiras · água com quantidade exata · bi-set com duas cargas · Meus alimentos · flag opcional · resumo da semana · cronômetro e resumo do treino · links por hash (`#treino`).

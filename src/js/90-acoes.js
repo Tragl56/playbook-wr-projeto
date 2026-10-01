@@ -98,9 +98,13 @@ document.addEventListener('click',e=>{
   if(a==='delx'){const dk=day(date);dk.extras.splice(+b.dataset.i,1);saveDay(date);view();return;}
   if(a==='addw'){const d=$('#wd').value,kg=Number($('#wk').value);if(!d||!(kg>20&&kg<300)){toast('Informe uma data e um peso válido em kg.');return;}
     S.weights=S.weights.filter(x=>x.d!==d);S.weights.push({d,kg});saveWeights();toast('Peso salvo.');view();return;}
+  if(a==='addm'){const d=$('#md').value,cm=Number($('#mc').value);if(!d||!(cm>=40&&cm<=200)){toast('Informe uma data e a cintura em cm (de 40 a 200).');return;}
+    S.measures=S.measures.filter(x=>x.d!==d);S.measures.push({d,cm:Math.round(cm*10)/10});saveMeasures();toast('Medida salva.');view();return;}
+  if(a==='delm'){S.measures=S.measures.filter(x=>x.d!==b.dataset.d);saveMeasures();view();return;}
+  if(a==='goto-tests'){go('evol');try{$('#testes').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}return;}
   if(a==='delw'){S.weights=S.weights.filter(x=>x.d!==b.dataset.d);saveWeights();view();return;}
-  if(a==='addt'){const v=id=>Number($(id).value)||0,o={d:date,s10:v('#t10'),s40:v('#t40'),vj:v('#tvj'),ag:v('#tag5')};
-    if(!(o.s10||o.s40||o.vj||o.ag)){toast('Preencha pelo menos um teste.');return;}
+  if(a==='addt'){const v=id=>Math.max(0,Number($(id).value)||0),o={d:date};TESTS.forEach(t=>{o[t.k]=v('#'+t.id);});
+    if(!TESTS.some(t=>o[t.k])){toast('Preencha pelo menos um teste.');return;}
     S.tests=S.tests.filter(x=>x.d!==date);S.tests.push(o);saveTests();toast('Testes salvos.');view();return;}
   if(a==='savehl'){
     const rd=id=>{const v=$(id).value;return v===''?null:Number(v);};
@@ -135,6 +139,8 @@ document.addEventListener('change',e=>{
   if(t.id==='fw'&&S.formBase){const ug=Number(t.value);if(ug>0){const v=scaleBase(S.formBase,ug);['k','p','c','g'].forEach(k=>{$('#f'+k).value=v[k];});}return;}
   if(['fk','fp','fc','fg'].includes(t.id)){S.formBase=null;return;}
   if(t.id==='bkf'){const f=t.files&&t.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restoreBackup(String(r.result));r.onerror=()=>toast('Não consegui ler o arquivo.');r.readAsText(f);t.value='';return;}
+  if(t.dataset.step){S.profile.steps=S.profile.steps||{};S.profile.steps[t.dataset.step]=Number(t.value);saveProfile();view();return;}
+  if(t.id==='hx'){S.histEx=t.value;view();return;}
   if(t.id==='xf'){const u=$('#xu');if(u)u.textContent=unitLabel(t.value);return;}
   if(t.dataset.note){const dk=day(date);dk.notes=dk.notes||{};dk.notes[t.dataset.note]=t.value;saveDay(date);return;}
   if(t.dataset.h){

@@ -25,6 +25,7 @@ const SESSIONS=[
 const REST_ITEMS=['Caminhada leve de 20 a 30 minutos','Mobilidade por 15 minutos: quadril, tornozelo, isquiotibiais e ombro','Preparar as refeições da semana','Dormir cedo: meta de 8 a 9 horas'];
 const LIFTS=['Agachamento livre (back squat)','Supino reto (barra ou halteres)','Levantamento terra convencional (barra reta)','Remada curvada (barra ou halteres)','Barra fixa (pull-up)'];
 const sessOf=wd=>SESSIONS.find(s=>s.wd===wd);
+const isTrain=dk=>!!(dk&&dk.done&&Object.keys(dk.done).some(x=>dk.done[x]&&x!=='FLAG'&&x!=='DOM'));
 const typeOf=d=>{const w=d.getDay();return w===6?'sab':w===0?'desc':'treino'};
 const TYPE_NAME={treino:'Dia de treino',sab:'Sábado (time)',desc:'Descanso'};
 
@@ -34,7 +35,7 @@ const monday=(d=new Date())=>addDays(d,-((d.getDay()+6)%7));
 const DEFAULT_PROFILE={peso:75,altura:175,idade:25,sexo:'M',obj:'Manter',prot:2.0,
   fat:{treino:1.55,sab:1.75,desc:1.40},carb:{treino:3.3,sab:4.3,desc:2.6},pf:1,agua:35,cycleStart:ymd(monday())};
 // needSetup: nenhum perfil salvo ainda. Enquanto for true, o app mostra a configuração inicial e não grava nada.
-const S={profile:clone(DEFAULT_PROFILE),weights:[],tests:[],days:{},tab:'hoje',sess:null,planView:null,open:{},exOpen:{},needSetup:true};
+const S={profile:clone(DEFAULT_PROFILE),weights:[],tests:[],measures:[],days:{},tab:'hoje',sess:null,planView:null,open:{},exOpen:{},needSetup:true};
 const day=(date=ymd())=>{ if(!S.days[date]) S.days[date]={eaten:{},extras:[],water:0,sets:{},done:{},chk:{}}; return S.days[date]; };
 
 /* ---------- armazenamento: conta (db), navegador (localStorage) ou memória ---------- */
@@ -66,11 +67,12 @@ const Store={
     if(id==='profile') return S.profile;
     if(id==='weights') return {list:S.weights};
     if(id==='tests') return {list:S.tests};
+    if(id==='measures') return {list:S.measures};
     if(id.startsWith('d_')) return S.days[id.slice(2)]||{};
     return {};
   },
   blob(){
-    const b={profile:S.profile,weights:{list:S.weights},tests:{list:S.tests}};
+    const b={profile:S.profile,weights:{list:S.weights},tests:{list:S.tests},measures:{list:S.measures}};
     Object.keys(S.days).forEach(k=>{b['d_'+k]=S.days[k];});
     return b;
   },
@@ -90,11 +92,13 @@ const Store={
 const saveProfile=()=>Store.save('profile');
 const saveWeights=()=>Store.save('weights');
 const saveTests=()=>Store.save('tests');
+const saveMeasures=()=>Store.save('measures');
 const saveDay=date=>Store.save('d_'+date);
 function applyLoaded(o){
   if(o.profile){const p=o.profile;S.needSetup=false;S.profile=Object.assign(clone(DEFAULT_PROFILE),p,{fat:Object.assign({},DEFAULT_PROFILE.fat,p.fat||{}),carb:Object.assign({},DEFAULT_PROFILE.carb,p.carb||{})});}
   if(o.weights&&Array.isArray(o.weights.list)) S.weights=o.weights.list;
   if(o.tests&&Array.isArray(o.tests.list)) S.tests=o.tests.list;
+  if(o.measures&&Array.isArray(o.measures.list)) S.measures=o.measures.list;
   Object.keys(o).forEach(k=>{if(k.startsWith('d_')){const d=o[k]||{};S.days[k.slice(2)]=Object.assign({eaten:{},extras:[],water:0,sets:{},done:{},chk:{}},d);}});
 }
 

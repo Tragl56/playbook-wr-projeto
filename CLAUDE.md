@@ -9,7 +9,7 @@ PWA de treino, alimentação, água e evolução para um wide receiver de futebo
 ```bash
 npm install
 npm run build     # src/ + data/ -> dist/site (publicar) e dist/playbook-wr.html (arquivo único)
-npm test          # 11 arquivos de teste, cerca de 170 verificações, JSDOM
+npm test          # 12 arquivos de teste, cerca de 200 verificações, JSDOM
 npm run serve     # http://localhost:5173
 npm run data      # (Python, via scripts/py.mjs) planilha + training.json + app-data.json
 npm run data:app  # (Python, via scripts/py.mjs) só app-data.json, a partir de foods.py, units.py, training.json e taco.json
@@ -19,7 +19,7 @@ npm run data:taco # (Python) extrai data/taco.json da planilha oficial da TACO e
 
 ## Mapa do código
 - `src/js/00-core.js`: utilidades (`$`, `esc`, `nf`, datas), estado global `S`, `Store` (armazenamento), metas (`targets()`), comida (`FOOD`, `UN`, `mac`, `fmtQty`, `consumed`), ciclo de 4 semanas, cronômetro de descanso.
-- `src/js/10-telas-hoje-treino.js`: `vHoje`, `vTreino`, `gymHtml` (séries), `PAIRS` (bi-set), atividade opcional `FLAG`, `weekCard`.
+- `src/js/10-telas-hoje-treino.js`: `vHoje`, `vTreino`, `gymHtml` (séries), `PAIRS` (bi-set), atividade opcional `FLAG`, `weekCard`, passo de carga (`STEPS`, `stepOf`, `stepBtns`), força estimada e histórico (`e1rm`, `exSeries`, `exHistHtml`), prontidão (`readiness`, `readinessHtml`) e lembrete dos testes na semana 4 (`testsDueHtml`).
 - `src/js/20-telas-comida-evolucao-perfil.js`: `vComida`, "Meus alimentos" (`customCard`, `regCustom`, `seedCustom`), `vEvol`, `vPerfil`, `vSetup` (configuração inicial), backup (`bkFile`, `bkCopy`, `restoreBackup`, `bkDue`), tendência do peso (`trend`, `trendHtml`), lembretes do iPhone (`remindersHtml`), Tabela TACO (`tacoCard`, `tacoFind`, `tacoResults`) e código de barras (`barFind`, `scaleBase`).
 - `src/js/90-acoes.js`: um `click` e um `change` no `document` (delegação por `data-act`) e a inicialização.
 - As telas são funções que **devolvem uma string HTML**; `view()` troca o `innerHTML` de `#view`. Toda ação altera `S`/o dia, chama `saveDay(...)` e depois `view()`.
@@ -29,7 +29,8 @@ npm run data:taco # (Python) extrai data/taco.json da planilha oficial da TACO e
 Veja `docs/ARQUITETURA.md` para o formato completo. Resumo:
 - Chave do navegador: `wr_playbook_v1` (localStorage). Dentro do Claude (artefato) usa `claude.use('db')`; se nada disponível, fica só em memória.
 - Por dia: `d_AAAA-MM-DD` com `eaten`, `extras`, `water`/`wlog`, `sets`, `done`, `chk`, `meals`, `health`, `t0`/`dur`, `notes`.
-- Perfil em `profile` (inclui `custom`, os alimentos do usuário).
+- Perfil em `profile` (inclui `custom`, os alimentos do usuário, e `steps`, o passo de carga por exercício).
+- Listas: `weights`, `tests` (6 testes de campo: `TESTS` em `20-telas...js`) e `measures` (cintura).
 - Não quebre dados antigos: campos novos devem ser opcionais e ter valor padrão.
 
 ## Regras e cuidados que já custaram tempo
