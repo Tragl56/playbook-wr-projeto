@@ -118,14 +118,12 @@ const mac=(n,g)=>{const f=FOOD[n]||TACO[n];if(!f)return{k:0,p:0,c:0,g:0};const x
 const add=(a,b)=>{a.k+=b.k;a.p+=b.p;a.c+=b.c;a.g+=b.g;return a;};
 const ugOf=n=>UN[n]?UN[n][2]:1;
 function fmtQty(n,g){const u=UN[n];if(!u)return nf(g)+' g de '+n.charAt(0).toLowerCase()+n.slice(1);const q=Math.round(g/u[2]*100)/100,qs=nf(q,q%1?1:0),unit=q>1?u[1]:u[0];return qs+' '+unit+(u[4]?'':' de '+u[5]);}
-// extra do dia: usa e.m (valores por 100 g guardados no próprio extra, ex.: estimativa da foto) ou a base/TACO
-const exMac=e=>e.m?{k:e.m.k*e.g/100,p:e.m.p*e.g/100,c:e.m.c*e.g/100,g:e.m.g*e.g/100}:mac(e.f,e.g);
 const mealMacItems=items=>items.reduce((t,f)=>add(t,mac(f[0],f[1])),{k:0,p:0,c:0,g:0});
 const mealItems=(type,i,dk)=>((dk&&dk.meals&&dk.meals[i])||D.plans[type][i][2]);
 function consumed(date){
   const dk=S.days[date]||{},t={k:0,p:0,c:0,g:0},type=typeOf(parseYmd(date));
   (D.plans[type]||[]).forEach((m,i)=>{if(dk.eaten&&dk.eaten[i])add(t,mealMacItems(mealItems(type,i,dk)));});
-  (dk.extras||[]).forEach(e=>add(t,exMac(e)));
+  (dk.extras||[]).forEach(e=>add(t,mac(e.f,e.g)));
   return t;
 }
 function cycleWeek(date=new Date()){

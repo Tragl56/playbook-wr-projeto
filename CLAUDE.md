@@ -3,13 +3,13 @@
 Guia para trabalhar neste projeto. Responda e escreva textos da interface em **português do Brasil**.
 
 ## O que é
-PWA de treino, alimentação, água e evolução para um wide receiver de futebol americano (treino do time aos sábados, flag football opcional às quartas às 20h). JavaScript puro, sem framework e sem dependências em tempo de execução no app. A única parte de servidor é `api/foto.js` (função da Vercel para a foto do prato), que usa o SDK oficial `@anthropic-ai/sdk`. O dono usa principalmente no **iPhone** (instalado na tela inicial) e quer entregas completas, sem ficar voltando com perguntas.
+PWA de treino, alimentação, água e evolução para um wide receiver de futebol americano (treino do time aos sábados, flag football opcional às quartas às 20h). JavaScript puro, sem framework e sem dependências em tempo de execução. O dono usa principalmente no **iPhone** (instalado na tela inicial) e quer entregas completas, sem ficar voltando com perguntas.
 
 ## Comandos
 ```bash
 npm install
 npm run build     # src/ + data/ -> dist/site (publicar) e dist/playbook-wr.html (arquivo único)
-npm test          # 13 arquivos de teste, cerca de 215 verificações, JSDOM
+npm test          # 11 arquivos de teste, cerca de 170 verificações, JSDOM
 npm run serve     # http://localhost:5173
 npm run data      # (Python, via scripts/py.mjs) planilha + training.json + app-data.json
 npm run data:app  # (Python, via scripts/py.mjs) só app-data.json, a partir de foods.py, units.py, training.json e taco.json
@@ -21,9 +21,7 @@ npm run data:taco # (Python) extrai data/taco.json da planilha oficial da TACO e
 - `src/js/00-core.js`: utilidades (`$`, `esc`, `nf`, datas), estado global `S`, `Store` (armazenamento), metas (`targets()`), comida (`FOOD`, `UN`, `mac`, `fmtQty`, `consumed`), ciclo de 4 semanas, cronômetro de descanso.
 - `src/js/10-telas-hoje-treino.js`: `vHoje`, `vTreino`, `gymHtml` (séries), `PAIRS` (bi-set), atividade opcional `FLAG`, `weekCard`.
 - `src/js/20-telas-comida-evolucao-perfil.js`: `vComida`, "Meus alimentos" (`customCard`, `regCustom`, `seedCustom`), `vEvol`, `vPerfil`, `vSetup` (configuração inicial), backup (`bkFile`, `bkCopy`, `restoreBackup`, `bkDue`), tendência do peso (`trend`, `trendHtml`), lembretes do iPhone (`remindersHtml`), Tabela TACO (`tacoCard`, `tacoFind`, `tacoResults`) e código de barras (`barFind`, `scaleBase`).
-- `api/foto.js`: função da Vercel. Recebe a foto (base64), confere `x-app-code` contra `APP_CODE` e pergunta ao Claude (`claude-opus-5-5`, JSON garantido por `json_schema`, lista base + TACO no system prompt com cache). Sem as variáveis `ANTHROPIC_API_KEY`/`APP_CODE` responde 503.
-- Foto no app (`20-telas...js`): `fotoCard`, `fotoSend`, `shrinkImage`, `fotoMac`, `fotoSetupHtml`. O código de acesso fica em `localStorage` (`wr_foto_code`), fora do backup.
-- `src/js/90-acoes.js`: um `click`, um `change` e um `input` no `document` (delegação por `data-act`) e a inicialização.
+- `src/js/90-acoes.js`: um `click` e um `change` no `document` (delegação por `data-act`) e a inicialização.
 - As telas são funções que **devolvem uma string HTML**; `view()` troca o `innerHTML` de `#view`. Toda ação altera `S`/o dia, chama `saveDay(...)` e depois `view()`.
 - O build junta os 4 arquivos JS na ordem do nome. Eles compartilham o escopo global (não há módulos).
 
@@ -49,7 +47,6 @@ Veja `docs/ARQUITETURA.md` para o formato completo. Resumo:
 12. **`<details>` e box-sizing:** o conteúdo de `<details>` não herda o `box-sizing`; por isso há uma regra `details *{box-sizing:border-box}`. Sem ela, botões `block` passam da largura da tela.
 13. **Tendência do peso só sugere.** O ajuste só acontece no toque em "Aplicar sugestão" (`trend-apply`), que soma nos fatores de atividade e grava `trendAdj`.
 14. **TACO e código de barras:** `TACO[nome]` fica fora de `FOOD` (um alimento de "Meus alimentos" com o mesmo nome tem prioridade em `mac()`). A busca atualiza só `#tres` no evento `input`, sem `view()`, para o teclado do iPhone não fechar. O código de barras só **preenche** o formulário (`S.prefill`, `S.formBase`); quem salva é o usuário. Nos testes, simule `fetch` (veja `tests/taco.test.js`).
-15. **Foto do prato:** nunca chame a API de verdade nos testes (`tests/fotoapi.test.js` injeta um cliente falso via `makeHandler`; `tests/foto.test.js` simula `fetch` e `shrinkImage`). Extras estimados pela foto guardam `m` (kcal/macros por 100 g); some sempre com `exMac(e)`, não `mac(e.f, e.g)`.
 
 ## Como fazer mudanças comuns
 - **Novo alimento da base:** `data/foods.py` + `data/units.py` (mesmo nome), depois `npm run data:app`. Atalho: `/novo-alimento`.

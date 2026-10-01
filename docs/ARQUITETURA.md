@@ -32,8 +32,6 @@ Campos opcionais: `lastBackup` (data do último backup salvo ou copiado), `bkSno
 
 **Código de barras:** `barFind()` consulta `https://world.openfoodfacts.org/api/v2/product/<código>.json` (sem chave; libera acesso de outros sites) e preenche o formulário de "Meus alimentos" com a porção do rótulo (`serving_quantity`) ou 100 g. `S.prefill` guarda os valores mostrados e `S.formBase` os valores por 100 g, para recalcular quando o tamanho da unidade muda.
 
-**Foto do prato:** o app reduz a foto para até 1280 px (JPEG) e faz `POST /api/foto` com `{image, media_type, meus}` e o cabeçalho `x-app-code`. A função (`api/foto.js`) devolve `{prato, observacao, itens:[{nome, alimento, gramas, kcal, proteina, carbo, gordura}], uso}`. Se `alimento` existir em `FOOD`/`TACO`, o app usa os valores da tabela; senão usa a estimativa da foto. Ao somar ao dia, o extra fica `{f: alimento, g}` ou `{f: nome, g, m: {k,p,c,g} por 100 g}` (campo `m` opcional; `exMac(e)` decide).
-
 **Backup:** `Store.blob()` em JSON. "Salvar arquivo" usa o compartilhamento do sistema (`navigator.share` com arquivo) e, se não houver, baixa o arquivo. O lembrete na aba Hoje aparece com 30 dias sem backup, só quando os dados ficam no aparelho.
 
 **Configuração inicial:** o código traz só um perfil neutro (`DEFAULT_PROFILE`). Sem perfil salvo, `S.needSetup` fica `true`: `view()` mostra `vSetup()` (peso, altura, idade, sexo, objetivo ou restaurar backup), a barra de abas some (`body.setup`) e `Store.save` não grava nada. Ao concluir (`setup-save`), o perfil é gravado e o peso informado vira a primeira pesagem. Qualquer perfil já salvo (`applyLoaded`) desliga a configuração.

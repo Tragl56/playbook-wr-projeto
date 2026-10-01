@@ -15,15 +15,6 @@
 
 O GitHub Actions (`.github/workflows/ci.yml`) roda build e testes em cada push.
 
-## Foto do prato (função `api/foto.js`)
-A Vercel publica `api/foto.js` como função junto com o site. Ela precisa de duas variáveis em **Settings > Environment Variables** (ambiente Production):
-- `ANTHROPIC_API_KEY`: chave criada em console.anthropic.com (a conta precisa de créditos; é cobrança separada da assinatura do Claude).
-- `APP_CODE`: um código de acesso que você inventa (6 caracteres ou mais). O mesmo código é digitado no app em Perfil > Foto do prato. Sem ele, qualquer pessoa com o link poderia gastar seus créditos.
-
-Depois de salvar as variáveis, faça um **Redeploy** (Deployments > ⋯ > Redeploy) para a função passar a enxergá-las. Sem as variáveis, a função responde "ainda não foi configurada".
-
-Custo aproximado com Claude Opus 5.5: US$ 0,04 a 0,07 por foto. Trocar `MODEL` em `api/foto.js` para `claude-sonnet-5-5` corta pela metade, com alguma perda de precisão.
-
 ## Conferir o que foi ao ar
 `dist/hashes.txt` tem o sha1 de cada arquivo do site. Compare com os arquivos na Vercel se precisar ter certeza (Deployments > Source).
 

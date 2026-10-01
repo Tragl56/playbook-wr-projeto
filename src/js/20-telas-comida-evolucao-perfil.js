@@ -7,7 +7,6 @@ function vComida(){
   h+=`<div class="chips" role="group" aria-label="Tipo de dia" style="margin-top:12px">`+['treino','sab','desc'].map(t=>`<button class="chip" aria-pressed="${t===type}" data-act="plan" data-t="${t}">${TYPE_NAME[t]}${t===todayType?' (hoje)':''}</button>`).join('')+`</div>`;
   let tot={k:0,p:0,c:0,g:0};if(track)tot=consumed(date);else meals.forEach((m,i)=>add(tot,mealMacItems(m[2])));
   h+=`<section class="card"><p class="tag" style="margin-bottom:8px">${track?'Comido hoje':'Total do plano'}</p>${fieldHtml(tot,tg,true)}${ringsHtml(tot,tg)}</section>`;
-  if(track&&fotoOn()) h+=fotoCard();
   if(track) h+=`<div class="note">Sem balança: as porções estão em medidas caseiras. Comeu diferente? Abra a refeição e ajuste com <b>+</b> e <b>−</b>, ou adicione outro alimento.</div>`;
   const nextI=track?meals.findIndex((m,i)=>!(dk.eaten&&dk.eaten[i])):-1;
   h+=`<div class="sh"><h2>Refeições</h2></div><div class="tl">`;
@@ -32,7 +31,7 @@ function vComida(){
     h+=`<div class="sh"><h2>Comeu algo fora do plano?</h2></div><section class="card"><div class="grid2"><label class="f"><span>Alimento</span><select id="xf">${foodOptions()}</select></label>
       <label class="f"><span>Quantidade (<span id="xu" style="display:inline;margin:0">${esc(unitLabel(f0))}</span>)</span><input id="xq" type="number" inputmode="decimal" min="0.5" step="0.5" value="1"></label></div>
       <button class="btn block" style="margin-top:12px" data-act="addx">Adicionar</button>`;
-    (dk.extras||[]).forEach((e,i)=>{const m=exMac(e);h+=`<div class="lift" style="grid-template-columns:1fr auto"><div><b>${esc(fmtQty(e.f,e.g))}</b><p class="tag">≈ ${nf(e.g)} g · ${nf(m.k)} kcal</p></div><button class="btn ghost sm" data-act="delx" data-i="${i}" aria-label="Remover ${esc(e.f)}">Remover</button></div>`;});
+    (dk.extras||[]).forEach((e,i)=>{const m=mac(e.f,e.g);h+=`<div class="lift" style="grid-template-columns:1fr auto"><div><b>${esc(fmtQty(e.f,e.g))}</b><p class="tag">≈ ${nf(e.g)} g · ${nf(m.k)} kcal</p></div><button class="btn ghost sm" data-act="delx" data-i="${i}" aria-label="Remover ${esc(e.f)}">Remover</button></div>`;});
     h+=`<p class="tag" style="margin-top:12px">Seu alimento não está na lista? Busque na <b>Tabela TACO</b> ou cadastre em <b>Meus alimentos</b>, logo abaixo.</p></section>`;
     h+=tacoCard();
   }
@@ -273,7 +272,6 @@ function vPerfil(){
     <p class="tag" style="margin-top:8px">No iPhone, "Salvar arquivo" abre o compartilhamento: escolha "Salvar em Arquivos". "Copiar" serve para colar em Notas ou num e-mail para você mesmo.</p>
     <details><summary>Restaurar backup</summary>${restoreHtml()}</details>
     <label class="f" style="margin-top:12px"><span>Tema</span><select data-p="_theme"><option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select></label></section>`;
-  h+=fotoSetupHtml();
   h+=remindersHtml();
   return h;
 }
@@ -385,82 +383,4 @@ function remindersHtml(){
     <details><summary>Como criar no app Lembretes</summary><ol class="steps"><li>Abra o app Lembretes e crie a lista "Playbook" (Adicionar Lista).</li><li>Toque em "Novo Lembrete" e escreva, por exemplo, "Água: ${nf(ml)} ml".</li><li>Toque no ⓘ, ative Data e Hora e escolha o horário.</li><li>Em Repetir, escolha Diariamente. Para refeições, use Personalizado &gt; Semanalmente e marque os dias (segunda a sexta, sábado ou domingo).</li><li>Repita para cada horário.</li></ol></details>
     <details><summary>Como criar no app Atalhos</summary><ol class="steps"><li>Abra Atalhos &gt; Automação &gt; + &gt; Hora do Dia.</li><li>Escolha o horário e a repetição (todo dia ou nos dias da semana) e marque Executar Imediatamente.</li><li>Toque em Seguinte &gt; Nova Automação em Branco &gt; Adicionar Ação e busque "Mostrar Notificação".</li><li>Escreva o texto do aviso (ex.: "Água: ${nf(ml)} ml") e conclua.</li><li>Repita para cada horário.</li></ol></details>
     <p class="tag" style="margin-top:8px">Não use links do site nos avisos: eles abrem no Safari, que guarda os dados separados do app instalado.</p></section>`;
-}
-
-/* ---------- FOTO DO PRATO (função /api/foto na Vercel, com o Claude) ---------- */
-// O código de acesso fica só neste aparelho (não vai para o backup).
-const FOTO_KEY='wr_foto_code';
-function fotoCode(){try{return localStorage.getItem(FOTO_KEY)||'';}catch(e){return '';}}
-// Só no site (http/https). No artefato do Claude não há a função /api/foto.
-const fotoOn=()=>/^https?:$/.test(location.protocol)&&Store.mode!=='cloud';
-function fotoFood(it){const n=it.alimento;return n&&(FOOD[n]||TACO[n])?n:'';}
-// kcal e macros do item para `g` gramas: tabela (base/Meus/TACO) quando houver; senão a estimativa da foto
-function fotoMac(it,g){const n=fotoFood(it);if(n)return mac(n,g);const r=it.gramas>0?g/it.gramas:0;return{k:it.kcal*r,p:it.proteina*r,c:it.carbo*r,g:it.gordura*r};}
-function fotoTotal(){const t={k:0,p:0,c:0,g:0};((S.foto&&S.foto.itens)||[]).forEach(it=>{if(it.sel)add(t,fotoMac(it,it.g));});return t;}
-// calorias, proteína, gordura e carboidrato do que está marcado, em números grandes
-function fotoSumHtml(){const t=fotoTotal();
-  return [['k',nf(t.k),'kcal'],['p',nfg(t.p),'g proteína'],['g',nfg(t.g),'g gordura'],['c',nfg(t.c),'g carbo']].map(([k,v,l])=>`<div><b data-k="${k}">${v}</b><span>${l}</span></div>`).join('');}
-const nfg=v=>nf(v,v<10?1:0); // gramas: 1 casa abaixo de 10 (0,3 g de gordura não vira 0)
-const fotoItTxt=m=>`${nf(m.k)} kcal · P ${nfg(m.p)} g · G ${nfg(m.g)} g · C ${nfg(m.c)} g`;
-function fotoCard(){
-  const F=S.foto;
-  let h=`<section class="card" id="foto" style="margin-top:12px"><div class="card-h"><h3>Foto do prato</h3></div>`;
-  if(!F){
-    h+=`<p class="tag">Tire uma foto do prato e eu estimo os alimentos, as quantidades e as calorias. Você confere antes de somar ao dia.</p>
-      <label class="btn xl block filebtn" style="margin-top:12px">Fotografar o prato<input id="fotoin" class="vh" type="file" accept="image/*"></label>`;
-    if(!fotoCode()) h+=`<p class="tag" style="margin-top:8px">Antes, configure o código de acesso em Perfil &gt; Foto do prato.</p>`;
-    return h+`</section>`;
-  }
-  if(F.img) h+=`<img class="fotothumb" src="${F.img}" alt="Foto do prato">`;
-  if(F.st==='busy') return h+`<p class="tag" style="margin-top:8px" role="status">Analisando a foto… pode levar até 30 segundos.</p></section>`;
-  if(F.st==='err') return h+`<div class="ins warn"><span class="ic">!</span><span>${esc(F.msg)}</span></div><div class="btnrow" style="margin-top:10px"><label class="btn filebtn">Tentar outra foto<input id="fotoin" class="vh" type="file" accept="image/*"></label><button class="btn ghost" data-act="foto-clear">Fechar</button></div></section>`;
-  if(!F.itens.length) return h+`<div class="ins info"><span class="ic">i</span><span>${esc(F.obs||'Não encontrei alimentos na foto.')}</span></div><div class="btnrow" style="margin-top:10px"><label class="btn filebtn">Tentar outra foto<input id="fotoin" class="vh" type="file" accept="image/*"></label><button class="btn ghost" data-act="foto-clear">Fechar</button></div></section>`;
-  h+=`<p class="tag" style="margin-top:10px">Neste prato (itens marcados):</p><div class="fotosum" id="ptot">${fotoSumHtml()}</div>
-    <p class="tag" style="margin-top:12px">Confira os itens e ajuste os gramas. Desmarque o que não comeu.</p>`;
-  F.itens.forEach((it,i)=>{const m=fotoMac(it,it.g),src=fotoFood(it)?(TACO[fotoFood(it)]&&!FOOD[fotoFood(it)]?'TACO':'tabela do app'):'estimativa da foto';
-    h+=`<div class="fotoit${it.sel?'':' off'}"><label class="fchk"><input type="checkbox" id="pc${i}" ${it.sel?'checked':''}><span><b>${esc(it.nome)}</b><span class="tag">${esc(src)}${fotoFood(it)&&norm(fotoFood(it))!==norm(it.nome)?': '+esc(fotoFood(it)):''}</span></span></label>
-      <label class="f"><span>Gramas</span><input id="pg${i}" type="number" inputmode="decimal" min="1" max="3000" step="1" value="${Math.round(it.g)}"></label><span class="tag" id="pk${i}">${fotoItTxt(m)}</span></div>`;});
-  if(F.obs) h+=`<p class="tag" style="margin-top:4px">Obs.: ${esc(F.obs)}</p>`;
-  h+=`<div class="btnrow" style="margin-top:12px"><button class="btn" data-act="foto-add">Adicionar ao dia</button><button class="btn ghost" data-act="foto-clear">Descartar</button></div>
-    <p class="tag" style="margin-top:8px">É uma estimativa por foto: pode errar a quantidade, principalmente de óleo e molhos.</p></section>`;
-  return h;
-}
-// atualiza kcal do item e o total sem recriar a tela (o teclado não fecha)
-function fotoRefresh(i){
-  const it=S.foto.itens[i],m=fotoMac(it,it.g),el=$('#pk'+i);if(el)el.textContent=fotoItTxt(m);
-  const tot=$('#ptot');if(tot)tot.innerHTML=fotoSumHtml();
-  const row=$('#pc'+i);if(row)row.closest('.fotoit').classList.toggle('off',!it.sel);
-}
-// reduz a foto para no máximo 1280 px (JPEG) antes de enviar
-async function shrinkImage(file,max=1280){
-  const url=URL.createObjectURL(file);
-  try{
-    const img=await new Promise((ok,ko)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=ko;i.src=url;});
-    const w=img.naturalWidth,h=img.naturalHeight,s=Math.min(1,max/Math.max(w,h)),c=document.createElement('canvas');
-    c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-    return c.toDataURL('image/jpeg',0.82);
-  }finally{URL.revokeObjectURL(url);}
-}
-async function fotoSend(file){
-  const code=fotoCode();if(!code){toast('Configure o código em Perfil > Foto do prato.');go('perfil');return;}
-  if(navigator.onLine===false){toast('Sem internet: a foto precisa de conexão.');return;}
-  let img;
-  try{img=await shrinkImage(file);}catch(e){toast('Não consegui abrir essa foto.');return;}
-  S.foto={st:'busy',img};view();
-  let r,j;
-  try{
-    r=await fetch('/api/foto',{method:'POST',headers:{'Content-Type':'application/json','x-app-code':code},
-      body:JSON.stringify({image:img.split(',')[1],media_type:'image/jpeg',meus:(S.profile.custom||[]).map(f=>`${f.n} (1 ${f.u} = ${f.ug} ${f.m||'g'})`)})});
-    j=await r.json().catch(()=>null);
-  }catch(e){S.foto={st:'err',img,msg:'Sem conexão com o servidor. Tente de novo.'};view();return;}
-  if(!r.ok||!j||!Array.isArray(j.itens)){S.foto={st:'err',img,msg:(j&&j.erro)||'A análise falhou. Tente de novo.'};view();return;}
-  S.foto={st:'ok',img,obs:j.observacao||'',itens:j.itens.map(it=>Object.assign({},it,{g:it.gramas,sel:true}))};view();
-}
-function fotoSetupHtml(){
-  if(!fotoOn())return '';
-  const ok=!!fotoCode();
-  return `<div class="sh"><h2>Foto do prato</h2></div><section class="card" id="fotocfg"><p class="tag">A foto vai para a função do site, que pergunta ao Claude (Anthropic) o que tem no prato. A foto não é guardada. Cada análise tem um custo pequeno na sua conta da API da Anthropic.</p>
-    <p style="margin-top:8px" id="fotost">${ok?'<b style="color:var(--ok)">Configurado neste aparelho ✓</b>':'<b>Não configurado neste aparelho</b>'}</p>
-    <label class="f" style="margin-top:8px"><span>Código de acesso (o mesmo de APP_CODE na Vercel)</span><input id="fcode" type="password" autocomplete="off" placeholder="${ok?'••••••••':'digite o código'}"></label>
-    <div class="btnrow" style="margin-top:10px"><button class="btn" data-act="foto-code">Salvar código</button>${ok?'<button class="btn ghost" data-act="foto-uncode">Apagar</button>':''}</div></section>`;
 }

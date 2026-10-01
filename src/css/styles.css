@@ -238,18 +238,6 @@ h1[tabindex="-1"]:focus{outline:none}
 .steps li{margin:4px 0}
 .tsel{margin-top:10px;padding:12px;border-radius:14px;background:var(--surface2);border:1px solid var(--line)}
 #tres .lift b{font-weight:600}
-.fotosum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
-.fotosum div{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center}
-.fotosum b{display:block;font-family:var(--display);font-size:28px;font-weight:800;line-height:1;color:var(--ink)}
-.fotosum span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
-.fotothumb{display:block;width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-top:10px}
-.fotoit{display:grid;grid-template-columns:1fr 92px;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.fotoit.off{opacity:.5}
-.fotoit .fchk{display:flex;gap:10px;align-items:flex-start;min-height:44px;cursor:pointer}
-.fotoit .fchk input{width:22px;height:22px;margin-top:2px;flex:0 0 22px}
-.fotoit .fchk span{display:flex;flex-direction:column}
-.fotoit .f{margin:0}
-.fotoit>.tag{grid-column:1/-1}
 .tabs button{position:relative;flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:54px;font-size:12px;color:var(--muted);border-radius:14px}
 .tabs button[aria-current="page"]{color:var(--ink);font-weight:600}
 .tabs button[aria-current="page"]::before{content:"";position:absolute;top:-6px;left:50%;width:28px;height:3px;margin-left:-14px;border-radius:0 0 3px 3px;background:var(--accent)}
