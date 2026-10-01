@@ -15,6 +15,10 @@ Aviso na aba Evolução (`trendHtml`), com sugestão e botão "Aplicar sugestão
 Ceviche e café com proteína (`seedCustom` em `20-telas-...js`) são estimativas. Trocar pelos valores do rótulo/receita do dono. Revisar também as medidas caseiras em `data/units.py` se ele disser que uma concha, escumadeira ou colher é diferente.
 Agora há ferramentas para isso no app: **código de barras** (Open Food Facts) para produtos prontos e **Tabela TACO** para calcular receitas caseiras pelos ingredientes.
 
+## 4c. Foto do prato ✅ (30/09/2026; falta configurar a chave)
+Aba Comida > Foto do prato: o Claude identifica os alimentos e estima os gramas; o app usa os valores da TACO/base quando reconhece o alimento e a estimativa da foto quando não. O usuário confere, ajusta e soma ao dia. Função `api/foto.js` na Vercel. Testes: `tests/foto.test.js`, `tests/fotoapi.test.js`. **Para funcionar:** `ANTHROPIC_API_KEY` e `APP_CODE` na Vercel (veja `docs/DEPLOY.md`).
+Ideias: registrar quanto custou cada foto (o campo `uso` já volta da função); limite de fotos por dia na função.
+
 ## 4b. Tabela TACO e código de barras ✅ (30/09/2026)
 Busca na TACO (593 alimentos, offline) na aba Comida: adicionar ao dia em gramas ou salvar em Meus alimentos. Código de barras em Meus alimentos (Open Food Facts), que só preenche o formulário. Teste: `tests/taco.test.js`. Ideias: ler o código pela câmera (exigiria biblioteca), busca por nome de produtos (exigiria servidor intermediário).
 
