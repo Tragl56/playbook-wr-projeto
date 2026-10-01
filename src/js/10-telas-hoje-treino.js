@@ -76,6 +76,9 @@ function vHoje(){
       ${fd?'':`<p class="tag" style="margin-top:8px"><b style="color:var(--ink)">Refeição:</b> o jantar planejado é às 19:15, muito perto do jogo. Se for jogar, faça algo leve com carboidrato por volta das 18:30 (por exemplo 1 pão francês e 1 banana) e deixe o jantar completo para depois do jogo.</p>`}
       <div class="btnrow" style="margin-top:12px"><button class="btn ghost" data-act="goto-treino" data-id="FLAG">${fd?'Ver atividade':'Abrir checklist'}</button>${fd?'':`<button class="btn" data-act="finish" data-id="FLAG">Fui jogar</button>`}</div></section>`;
   }
+  const bd=bkDue();
+  if(bd) h+=`<section class="card" style="margin-top:12px" id="bkrem"><div class="card-h"><h3>Hora do backup</h3></div><p class="tag">Faz ${bd} dias sem backup. Seus dados ficam só neste aparelho: se o app for apagado, o histórico vai junto.</p>
+    <div class="btnrow" style="margin-top:12px"><button class="btn" data-act="bk-file">Salvar backup</button><button class="btn ghost" data-act="bk-later">Lembrar em 7 dias</button></div></section>`;
   h+=`<section class="card" style="margin-top:14px">${fieldHtml(c,tg)}${ringsHtml(c,tg)}</section>`;
   h+=`<div class="tiles" style="margin-top:12px;grid-template-columns:1fr">`;
   if(nextI<0) h+=`<section class="card tile"><span class="lbl">Refeições</span><span class="t" style="color:var(--ok)">Ok</span><p class="nm">Tudo marcado hoje</p><p class="tag">Confira o total no campo acima.</p><button class="btn ghost" data-act="goto-comida">Ver cardápio</button></section>`;

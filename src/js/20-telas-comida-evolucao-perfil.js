@@ -143,6 +143,7 @@ function vEvol(){
     h+=`<div class="wtop"><div><p class="tag">Peso atual</p><span class="big">${nf(last.kg,1)}</span> <span class="muted">kg</span></div><div class="delta" style="margin:0"><span class="pill">${dTot>0?'+':''}${nf(dTot,1)} kg no total</span><span class="pill ${ws.length>1&&per<0?'ok':''}">${ws.length>1?(per>0?'+':'')+nf(per,2):'—'} kg/sem</span></div></div>`;}
   else h+=`<p class="tag">Peso</p>`;
   h+=weightChart(S.weights);
+  h+=trendHtml();
   h+=`<div class="grid2" style="margin-top:10px"><label class="f"><span>Data</span><input id="wd" type="date" value="${ymd()}"></label><label class="f"><span>Peso (kg)</span><input id="wk" type="number" inputmode="decimal" step="0.1" placeholder="${nf(S.profile.peso,1)}"></label></div>
     <button class="btn block" style="margin-top:12px" data-act="addw">Salvar peso</button>`;
   if(S.profile.obj==='Definir') h+=`<p class="tag" style="margin-top:10px">Meta ao definir: perder cerca de 0,3 a 0,7 kg por semana sem perder força. Pese-se sempre no mesmo dia e horário.</p>`;
@@ -207,9 +208,12 @@ function vPerfil(){
   h+=`<div class="sh"><h2>Ciclo de 4 semanas</h2></div><section class="card"><p class="tag">Semana 4 é a descarga: cargas cerca de 10% menores e 1 série a menos.</p>
     <label class="f" style="margin-top:10px"><span>Semana atual do ciclo</span><select data-p="_week">${[1,2,3,4].map(w=>`<option value="${w}" ${w===wk?'selected':''}>Semana ${w}${w===4?' (descarga)':''}</option>`).join('')}</select></label></section>`;
   h+=`<div class="sh"><h2>Salvamento e tema</h2></div><section class="card"><p class="tag">${Store.mode==='cloud'?'Seus dados ficam salvos na sua conta e acompanham você em qualquer aparelho.':Store.mode==='local'?'Seus dados ficam salvos só neste aparelho. Faça um backup de vez em quando.':'Sem armazenamento disponível: os dados somem ao fechar. Abra o app pelo ícone ou pelo link.'}</p>
-    <details><summary>Backup e restauração</summary><button class="btn ghost block" style="margin:8px 0" data-act="bk-make">Gerar backup</button><textarea id="bk" style="font-size:16px" aria-label="Texto do backup" placeholder="Cole aqui um backup para restaurar"></textarea>
-    <button class="btn ghost block" style="margin-top:8px" data-act="bk-load">Restaurar deste texto</button></details>
+    <p class="tag" style="margin-top:10px" id="bklast">Último backup: ${p.lastBackup?fdate(p.lastBackup)+'/'+p.lastBackup.slice(0,4):'nenhum ainda'}</p>
+    <div class="btnrow" style="margin-top:10px"><button class="btn" data-act="bk-file">Salvar arquivo</button><button class="btn ghost" data-act="bk-copy">Copiar backup</button></div>
+    <p class="tag" style="margin-top:8px">No iPhone, "Salvar arquivo" abre o compartilhamento: escolha "Salvar em Arquivos". "Copiar" serve para colar em Notas ou num e-mail para você mesmo.</p>
+    <details><summary>Restaurar backup</summary>${restoreHtml()}</details>
     <label class="f" style="margin-top:12px"><span>Tema</span><select data-p="_theme"><option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select></label></section>`;
+  h+=remindersHtml();
   return h;
 }
 
@@ -223,8 +227,101 @@ function vSetup(){
     <label class="f" style="margin-top:12px"><span>Objetivo</span><select id="su-obj"><option value="">Escolha</option><option value="Definir">Definir (perder gordura mantendo a força)</option><option value="Manter">Manter o peso</option><option value="Ganhar massa">Ganhar massa</option></select></label>
     <button class="btn xl block" style="margin-top:16px" data-act="setup-save">Começar</button>
     <p class="tag" style="margin-top:10px">Dá para mudar tudo depois, na aba Perfil.</p></section>`;
-  h+=`<section class="card"><details><summary>Já usa o app em outro aparelho? Restaurar backup</summary><p class="tag" style="margin-top:8px">No outro aparelho: Perfil &gt; Backup e restauração &gt; Gerar backup. Copie o texto e cole aqui.</p>
-    <textarea id="bk" style="font-size:16px;margin-top:8px" aria-label="Texto do backup" placeholder="Cole aqui o backup"></textarea>
-    <button class="btn ghost block" style="margin-top:8px" data-act="bk-load">Restaurar deste texto</button></details></section>`;
+  h+=`<section class="card"><details><summary>Já usa o app em outro aparelho? Restaurar backup</summary><p class="tag" style="margin-top:8px">No outro aparelho: Perfil &gt; Salvar arquivo (ou Copiar backup). Depois escolha o arquivo ou cole o texto aqui.</p>
+    ${restoreHtml()}</details></section>`;
   return h;
+}
+
+/* ---------- BACKUP ---------- */
+// Restaurar: arquivo (#bkf, tratado no `change`) ou texto colado (#bk + bk-load).
+function restoreHtml(){
+  return `<label class="btn ghost block filebtn" style="margin-top:8px">Escolher arquivo de backup<input id="bkf" class="vh" type="file" accept=".json,application/json,text/plain"></label>
+    <textarea id="bk" style="font-size:16px;margin-top:8px" aria-label="Texto do backup" placeholder="Ou cole aqui o texto do backup"></textarea>
+    <button class="btn ghost block" style="margin-top:8px" data-act="bk-load">Restaurar deste texto</button>
+    <p class="tag" style="margin-top:6px">Restaurar troca os dados deste aparelho pelos do backup.</p>`;
+}
+const bkName=()=>`playbook-wr-backup-${ymd()}.json`;
+function markBackup(msg){S.profile.lastBackup=ymd();delete S.profile.bkSnooze;saveProfile();toast(msg);view();}
+// Dias sem backup (desde o último backup ou o primeiro registro). Só avisa a partir de 30 dias e quando os dados ficam no aparelho.
+function bkDue(){
+  if(Store.mode!=='local'||S.needSetup)return 0;
+  const p=S.profile,today=ymd();if(p.bkSnooze&&p.bkSnooze>today)return 0;
+  const since=p.lastBackup||Object.keys(S.days).concat(S.weights.map(w=>w.d)).sort()[0];if(!since)return 0;
+  const n=Math.round((parseYmd(today)-parseYmd(since))/86400000);return n>=30?n:0;
+}
+async function bkFile(){
+  const txt=JSON.stringify(Store.blob()),name=bkName();
+  try{const f=new File([txt],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Backup do Playbook WR'});markBackup('Backup salvo.');return;}
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  try{const u=URL.createObjectURL(new Blob([txt],{type:'application/json'})),a=document.createElement('a');
+    a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);markBackup('Arquivo de backup baixado.');}
+  catch(e){toast('Não consegui gerar o arquivo. Use "Copiar backup".');}
+}
+async function bkCopy(){
+  const txt=JSON.stringify(Store.blob());
+  try{await navigator.clipboard.writeText(txt);markBackup('Backup copiado. Cole em Notas ou num e-mail para você.');}
+  catch(e){const ta=$('#bk');if(ta){ta.closest('details').open=true;ta.value=txt;ta.select();}toast('Não consegui copiar sozinho: o texto está no campo "Restaurar backup". Copie de lá.');}
+}
+function restoreBackup(txt){
+  try{const o=JSON.parse(txt);if(!o||typeof o!=='object'||!o.profile)throw 0;S.days={};applyLoaded(o);
+    saveProfile();saveWeights();saveTests();Object.keys(S.days).forEach(saveDay);toast('Backup restaurado.');view();}
+  catch(err){toast('Backup inválido: confira se é o arquivo ou o texto certo.');}
+}
+
+/* ---------- TENDÊNCIA DO PESO: sugere ajuste de calorias, nunca aplica sozinho ---------- */
+// Reta de tendência das pesagens dos últimos 28 dias (desde o último ajuste aplicado). Precisa de 3 pesagens em 14 dias.
+function trend(){
+  const p=S.profile,adj=p.trendAdj&&p.trendAdj.d,ws=[...S.weights].filter(w=>!adj||w.d>=adj).sort((a,b)=>a.d<b.d?-1:1);
+  if(!ws.length)return{st:'pouco',n:0,dias:0};
+  const end=parseYmd(ws[ws.length-1].d),pts=ws.map(w=>({x:Math.round((parseYmd(w.d)-end)/86400000),y:w.kg})).filter(q=>q.x>=-28);
+  const dias=-pts[0].x;
+  if(pts.length<3||dias<14)return{st:'pouco',n:pts.length,dias};
+  const mx=pts.reduce((a,q)=>a+q.x,0)/pts.length,my=pts.reduce((a,q)=>a+q.y,0)/pts.length;
+  const slope=pts.reduce((a,q)=>a+(q.x-mx)*(q.y-my),0)/pts.reduce((a,q)=>a+(q.x-mx)**2,0);
+  const rate=slope*7,kg=my-slope*mx,pct=rate/kg*100,o=p.obj;
+  let st,dir=0;
+  if(o==='Definir'){st=pct<=-1?'rapido':rate>-0.2?'parado':'ok';dir=st==='rapido'?1:st==='parado'?-1:0;}
+  else if(o==='Ganhar massa'){st=pct>=0.5?'rapido':rate<0.1?'parado':'ok';dir=st==='rapido'?-1:st==='parado'?1:0;}
+  else{st=rate<=-0.25?'caindo':rate>=0.25?'subindo':'ok';dir=st==='caindo'?1:st==='subindo'?-1:0;}
+  // cerca de +175 kcal ou −125 kcal por dia, convertidos em passos de 0,05 nos fatores de atividade
+  const base=tmb()*(ADJ[o]||1),dF=dir?dir*Math.max(0.05,Math.round((dir>0?175:125)/base/0.05)*0.05):0;
+  return{st,n:pts.length,dias,rate,pct,dir,dF:Math.round(dF*100)/100,dk:Math.round(dF*base/10)*10};
+}
+function trendHtml(){
+  const t=trend(),p=S.profile,sg=(v,d)=>(v>0?'+':'')+nf(v,d),adj=p.trendAdj;
+  const box=(cls,txt)=>`<div class="ins ${cls}" id="trend" data-st="${t.st}"><span class="ic">${cls==='ok'?'✓':cls==='warn'?'!':'i'}</span><span>${txt}</span></div>`;
+  if(t.st==='pouco'){
+    const ini=adj?`Ajuste aplicado em ${fdate(adj.d)}. A nova tendência sai depois de 2 semanas de pesagens. `:'';
+    return box('info',`${ini}Tendência do peso: preciso de pelo menos 3 pesagens em 14 dias. Agora: ${t.n} ${t.n===1?'pesagem':'pesagens'}${t.n>1?' em '+t.dias+' dias':''}. Pese-se 1 a 2 vezes por semana, em jejum, no mesmo horário.`);
+  }
+  const r=`${sg(t.rate,2)} kg por semana (${sg(t.pct,1)}% do peso)`;
+  const msg={
+    Definir:{rapido:`Perdendo rápido demais: ${r}. Acima de ~1% por semana você tende a perder força e músculo.`,
+             parado:`Peso quase parado: ${r}. Para definir, o esperado é perder pelo menos 0,2 kg por semana.`,
+             ok:`Dentro do esperado: ${r}. Mantenha as metas.`},
+    'Ganhar massa':{rapido:`Ganhando rápido demais: ${r}. Acima de ~0,5% por semana boa parte tende a ser gordura.`,
+             parado:`Peso não está subindo: ${r}. Para ganhar massa, o esperado é pelo menos +0,1 kg por semana.`,
+             ok:`Dentro do esperado: ${r}. Mantenha as metas.`},
+    Manter:{caindo:`Peso caindo: ${r}. Para manter, o ideal é variar menos de 0,25 kg por semana.`,
+             subindo:`Peso subindo: ${r}. Para manter, o ideal é variar menos de 0,25 kg por semana.`,
+             ok:`Peso estável: ${r}. Mantenha as metas.`}
+  }[p.obj]||{};
+  const head=`Tendência de ${t.dias} dias (${t.n} pesagens): `;
+  if(!t.dir) return box('ok',head+(msg[t.st]||''));
+  const T=targets().treino.k,dica=t.dir>0?'Prefira somar carboidrato (arroz, batata, banana).':'Corte primeiro beliscos e gordura; andar mais durante o dia também ajuda.';
+  return box('warn',head+(msg[t.st]||'')+` <b>Sugestão:</b> ${t.dir>0?'comer':'cortar'} cerca de ${nf(Math.abs(t.dk))} kcal por dia (meta do dia de treino: ${nf(T)} → ${nf(T+t.dk)} kcal). ${dica}`)+
+    `<button class="btn ghost block" style="margin-top:8px" data-act="trend-apply" data-d="${t.dF}">Aplicar sugestão (${sg(t.dk,0)} kcal por dia)</button><p class="tag" style="margin-top:6px">Nada muda se você não tocar. O ajuste soma ${sg(t.dF,2)} nos fatores de atividade (Perfil &gt; Ajuste fino), e dá para desfazer lá.</p>`;
+}
+
+/* ---------- LEMBRETES (app Lembretes ou Atalhos do iPhone) ---------- */
+function remindersHtml(){
+  const goal=Math.round(S.profile.peso*S.profile.agua),hrs=['08:00','10:00','12:00','14:00','16:00','18:00','20:00'],ml=Math.max(100,Math.round(goal/hrs.length/50)*50);
+  const days={treino:'segunda a sexta',sab:'sábado',desc:'domingo'};
+  const meals=['treino','sab','desc'].map(t=>`<p style="margin-top:6px"><b style="color:var(--ink)">${TYPE_NAME[t]} (${days[t]}):</b> ${D.plans[t].map(m=>`${esc(m[1].split('–')[0])} ${esc(m[0].replace(/\s*\(.*\)$/,''))}`).join(' · ')}</p>`).join('');
+  return `<div class="sh"><h2>Lembretes no iPhone</h2></div><section class="card" id="lembretes"><p class="tag">O app instalado não consegue mandar avisos sozinho. Crie os avisos no app Lembretes (mais simples) ou no Atalhos. Ao receber o aviso, abra o Playbook pelo ícone da tela inicial.</p>
+    <details><summary>Horários sugeridos</summary><p><b style="color:var(--ink)">Água (todo dia):</b> ${hrs.join(', ')}, com cerca de ${nf(ml)} ml cada (meta de ${nf(goal)} ml).</p>${meals}</details>
+    <details><summary>Como criar no app Lembretes</summary><ol class="steps"><li>Abra o app Lembretes e crie a lista "Playbook" (Adicionar Lista).</li><li>Toque em "Novo Lembrete" e escreva, por exemplo, "Água: ${nf(ml)} ml".</li><li>Toque no ⓘ, ative Data e Hora e escolha o horário.</li><li>Em Repetir, escolha Diariamente. Para refeições, use Personalizado &gt; Semanalmente e marque os dias (segunda a sexta, sábado ou domingo).</li><li>Repita para cada horário.</li></ol></details>
+    <details><summary>Como criar no app Atalhos</summary><ol class="steps"><li>Abra Atalhos &gt; Automação &gt; + &gt; Hora do Dia.</li><li>Escolha o horário e a repetição (todo dia ou nos dias da semana) e marque Executar Imediatamente.</li><li>Toque em Seguinte &gt; Nova Automação em Branco &gt; Adicionar Ação e busque "Mostrar Notificação".</li><li>Escreva o texto do aviso (ex.: "Água: ${nf(ml)} ml") e conclua.</li><li>Repita para cada horário.</li></ol></details>
+    <p class="tag" style="margin-top:8px">Não use links do site nos avisos: eles abrem no Safari, que guarda os dados separados do app instalado.</p></section>`;
 }

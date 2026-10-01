@@ -1,4 +1,6 @@
 /* ---------- ações ---------- */
+// Faixas aceitas nos campos numéricos do Perfil (as mesmas da configuração inicial para peso, altura e idade).
+const LIM={peso:[30,250],altura:[120,230],idade:[12,90],prot:[1,3.5],agua:[20,70],fat:[1,2.5],carb:[0.5,10]};
 function setPath(obj,path,val){const k=path.split('.');let o=obj;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val;}
 function setTheme(t){try{if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);localStorage.setItem('wr_theme',t);}catch(e){}}
 function updateProgress(){
@@ -112,12 +114,17 @@ document.addEventListener('click',e=>{
     S.needSetup=false;saveProfile();
     if(!S.weights.some(x=>x.d===date)){S.weights.push({d:date,kg:S.profile.peso});saveWeights();}
     toast('Tudo pronto. Bom treino!');S.tab='hoje';view();window.scrollTo(0,0);return;}
-  if(a==='bk-make'){$('#bk').value=JSON.stringify(Store.blob());$('#bk').select();return;}
-  if(a==='bk-load'){try{const o=JSON.parse($('#bk').value);if(!o||typeof o!=='object'||!o.profile)throw 0;S.days={};applyLoaded(o);
-      saveProfile();saveWeights();saveTests();Object.keys(S.days).forEach(saveDay);toast('Backup restaurado.');view();}catch(err){toast('Texto de backup inválido.');}return;}
+  if(a==='bk-file'){bkFile();return;}
+  if(a==='bk-copy'){bkCopy();return;}
+  if(a==='bk-later'){S.profile.bkSnooze=ymd(addDays(new Date(),7));saveProfile();toast('Combinado: lembro de novo em 7 dias.');view();return;}
+  if(a==='bk-load'){restoreBackup($('#bk').value);return;}
+  if(a==='trend-apply'){const dF=Number(b.dataset.d),p=S.profile;if(!dF)return;
+    ['treino','sab','desc'].forEach(t=>{p.fat[t]=Math.round(Math.min(2.5,Math.max(1,p.fat[t]+dF))*100)/100;});
+    p.trendAdj={d:date,dF};saveProfile();toast('Metas ajustadas. Veja os novos valores no Perfil.');view();return;}
 });
 document.addEventListener('change',e=>{
   const t=e.target,date=ymd();
+  if(t.id==='bkf'){const f=t.files&&t.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restoreBackup(String(r.result));r.onerror=()=>toast('Não consegui ler o arquivo.');r.readAsText(f);t.value='';return;}
   if(t.id==='xf'){const u=$('#xu');if(u)u.textContent=unitLabel(t.value);return;}
   if(t.dataset.note){const dk=day(date);dk.notes=dk.notes||{};dk.notes[t.dataset.note]=t.value;saveDay(date);return;}
   if(t.dataset.h){
@@ -135,11 +142,14 @@ document.addEventListener('change',e=>{
   const path=t.dataset.p;if(!path)return;
   if(path==='_theme'){setTheme(t.value);return;}
   if(path==='_week'){S.profile.cycleStart=ymd(addDays(monday(new Date()),-7*(Number(t.value)-1)));saveProfile();view();return;}
-  let v=t.value;if(t.type==='number'){v=Number(v);if(!(v>0)&&path!=='pf'){toast('Valor inválido.');view();return;}}
+  let v=t.value;if(t.type==='number'){v=Number(v);const lim=LIM[path.split('.')[0]],f=x=>nf(x,x%1?1:0);
+    if(lim&&(t.value===''||!(v>=lim[0]&&v<=lim[1]))){toast(`Valor fora da faixa: use de ${f(lim[0])} a ${f(lim[1])}.`);view();return;}
+    if(!(v>0)&&path!=='pf'){toast('Valor inválido.');view();return;}}
   setPath(S.profile,path,v);saveProfile();view();
 });
 document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)go(b.dataset.tab);});
-function go(tab){S.tab=tab;view();const v=$('#view');v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');window.scrollTo(0,0);try{history.replaceState(null,'','#'+tab);}catch(e){}}
+function go(tab){S.tab=tab;view();const v=$('#view');v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');window.scrollTo(0,0);try{history.replaceState(null,'','#'+tab);}catch(e){}
+  const h1=$('#view h1');if(h1){h1.setAttribute('tabindex','-1');try{h1.focus({preventScroll:true});}catch(e){}}}
 function view(){
   regCustom();
   const fn=S.needSetup?vSetup:{hoje:vHoje,treino:vTreino,comida:vComida,evol:vEvol,perfil:vPerfil}[S.tab];

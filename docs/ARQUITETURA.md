@@ -24,6 +24,12 @@ S = {
 ### Perfil (`S.profile`)
 `peso, altura, idade, sexo, obj ('Definir'|'Manter'|'Ganhar massa'), prot (g/kg), fat{treino,sab,desc}, carb{treino,sab,desc} (g/kg), agua (ml/kg), cycleStart ('AAAA-MM-DD' da segunda da semana 1), custom[], customSeeded, pf (não usado)`.
 
+Campos opcionais: `lastBackup` (data do último backup salvo ou copiado), `bkSnooze` (até quando esconder o lembrete de backup), `trendAdj: {d, dF}` (data e valor do último ajuste aplicado pela tendência do peso; a tendência só usa pesagens a partir dessa data).
+
+**Tendência do peso (`trend()`):** reta (mínimos quadrados) das pesagens dos últimos 28 dias; precisa de 3 pesagens em 14 dias. Definir: rápido se perder 1% do peso ou mais por semana, parado se perder menos de 0,2 kg/sem. Ganhar massa: rápido acima de 0,5%/sem, parado abaixo de +0,1 kg/sem. Manter: fora de ±0,25 kg/sem. A sugestão (+~175 ou −~125 kcal) é convertida em passos de 0,05 nos fatores de atividade.
+
+**Backup:** `Store.blob()` em JSON. "Salvar arquivo" usa o compartilhamento do sistema (`navigator.share` com arquivo) e, se não houver, baixa o arquivo. O lembrete na aba Hoje aparece com 30 dias sem backup, só quando os dados ficam no aparelho.
+
 **Configuração inicial:** o código traz só um perfil neutro (`DEFAULT_PROFILE`). Sem perfil salvo, `S.needSetup` fica `true`: `view()` mostra `vSetup()` (peso, altura, idade, sexo, objetivo ou restaurar backup), a barra de abas some (`body.setup`) e `Store.save` não grava nada. Ao concluir (`setup-save`), o perfil é gravado e o peso informado vira a primeira pesagem. Qualquer perfil já salvo (`applyLoaded`) desliga a configuração.
 
 `custom[]` são os "Meus alimentos": `{id, n, u, ug, m, k, p, c, g}` = nome, unidade, tamanho de 1 unidade, medida (`g` ou `ml`) e kcal/proteína/carbo/gordura **de uma unidade**.
