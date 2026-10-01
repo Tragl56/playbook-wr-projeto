@@ -28,6 +28,10 @@ Campos opcionais: `lastBackup` (data do último backup salvo ou copiado), `bkSno
 
 **Tendência do peso (`trend()`):** reta (mínimos quadrados) das pesagens dos últimos 28 dias; precisa de 3 pesagens em 14 dias. Definir: rápido se perder 1% do peso ou mais por semana, parado se perder menos de 0,2 kg/sem. Ganhar massa: rápido acima de 0,5%/sem, parado abaixo de +0,1 kg/sem. Manter: fora de ±0,25 kg/sem. A sugestão (+~175 ou −~125 kcal) é convertida em passos de 0,05 nos fatores de atividade.
 
+**Tabela TACO:** `D.taco` = `[nome, grupo, kcal, proteína, carboidrato, gordura]` por 100 g (593 alimentos; `D.tacoCats` = nomes dos grupos). Gerada por `scripts/taco.py` a partir da planilha oficial (NEPA/UNICAMP, 4ª edição), conferida por SHA1; alimentos sem energia analisada ("*") ficam de fora. No app vira o mapa `TACO`, usado por `mac()` quando o nome não está em `FOOD`. Extras da TACO são gravados como `{f: nome, g: gramas}`.
+
+**Código de barras:** `barFind()` consulta `https://world.openfoodfacts.org/api/v2/product/<código>.json` (sem chave; libera acesso de outros sites) e preenche o formulário de "Meus alimentos" com a porção do rótulo (`serving_quantity`) ou 100 g. `S.prefill` guarda os valores mostrados e `S.formBase` os valores por 100 g, para recalcular quando o tamanho da unidade muda.
+
 **Backup:** `Store.blob()` em JSON. "Salvar arquivo" usa o compartilhamento do sistema (`navigator.share` com arquivo) e, se não houver, baixa o arquivo. O lembrete na aba Hoje aparece com 30 dias sem backup, só quando os dados ficam no aparelho.
 
 **Configuração inicial:** o código traz só um perfil neutro (`DEFAULT_PROFILE`). Sem perfil salvo, `S.needSetup` fica `true`: `view()` mostra `vSetup()` (peso, altura, idade, sexo, objetivo ou restaurar backup), a barra de abas some (`body.setup`) e `Store.save` não grava nada. Ao concluir (`setup-save`), o perfil é gravado e o peso informado vira a primeira pesagem. Qualquer perfil já salvo (`applyLoaded`) desliga a configuração.

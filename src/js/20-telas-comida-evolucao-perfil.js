@@ -32,7 +32,8 @@ function vComida(){
       <label class="f"><span>Quantidade (<span id="xu" style="display:inline;margin:0">${esc(unitLabel(f0))}</span>)</span><input id="xq" type="number" inputmode="decimal" min="0.5" step="0.5" value="1"></label></div>
       <button class="btn block" style="margin-top:12px" data-act="addx">Adicionar</button>`;
     (dk.extras||[]).forEach((e,i)=>{const m=mac(e.f,e.g);h+=`<div class="lift" style="grid-template-columns:1fr auto"><div><b>${esc(fmtQty(e.f,e.g))}</b><p class="tag">≈ ${nf(e.g)} g · ${nf(m.k)} kcal</p></div><button class="btn ghost sm" data-act="delx" data-i="${i}" aria-label="Remover ${esc(e.f)}">Remover</button></div>`;});
-    h+=`<p class="tag" style="margin-top:12px">Seu alimento não está na lista? Cadastre em <b>Meus alimentos</b>, logo abaixo.</p></section>`;
+    h+=`<p class="tag" style="margin-top:12px">Seu alimento não está na lista? Busque na <b>Tabela TACO</b> ou cadastre em <b>Meus alimentos</b>, logo abaixo.</p></section>`;
+    h+=tacoCard();
   }
   h+=customCard();
   return h;
@@ -67,23 +68,81 @@ function seedCustom(){
   p.customSeeded=true;saveProfile();
 }
 function customCard(){
-  const cu=S.profile.custom||[],ed=S.editFood?cu.find(f=>f.id===S.editFood):null,val=x=>ed?x:'';
+  const cu=S.profile.custom||[],ed=S.editFood?cu.find(f=>f.id===S.editFood):null,pf=!ed&&S.prefill;
+  const val=k=>ed?ed[k]:pf?pf[k]:'';
   let h=`<div class="sh"><h2>Meus alimentos</h2></div><section class="card" id="meus"><p class="tag">Cadastre o que você come no dia a dia. Eles aparecem nas listas de alimentos das refeições e em "Comeu algo fora do plano?". Os valores de ceviche e café com proteína são estimativas: ajuste para a sua receita. Ao remover um alimento, as calorias dele somem dos dias em que você já o usou.</p>`;
   cu.forEach(f=>{h+=`<div class="lift" style="grid-template-columns:1fr auto auto"><div><b>${esc(f.n)}</b><p class="tag">1 ${esc(f.u)} (${nf(f.ug)} ${esc(f.m||'g')}): ${nf(f.k)} kcal · P ${nf(f.p,1)} · C ${nf(f.c,1)} · G ${nf(f.g,1)}</p></div><button class="btn ghost sm" data-act="cf-edit" data-id="${f.id}">Editar</button><button class="btn ghost sm" data-act="cf-del" data-id="${f.id}">${S.delFood===f.id?'Confirmar':'Remover'}</button></div>`;});
-  h+=`<h3 style="margin-top:16px;font-size:18px">${ed?'Editar alimento':'Novo alimento'}</h3>
-    <div class="grid2" style="margin-top:8px">
-    <label class="f"><span>Nome</span><input id="fn" type="text" maxlength="40" placeholder="ex.: Marmita de frango" value="${esc(val(ed&&ed.n))}" ${ed?'readonly':''}></label>
-    <label class="f"><span>Unidade</span><input id="fu" type="text" maxlength="20" placeholder="porção, copo, fatia" value="${esc(ed?ed.u:'porção')}"></label>
-    <label class="f"><span>Tamanho de 1 unidade</span><input id="fw" type="number" inputmode="decimal" min="1" placeholder="ex.: 200" value="${ed?ed.ug:''}"></label>
-    <label class="f"><span>Medida</span><select id="fm"><option value="g" ${!ed||ed.m!=='ml'?'selected':''}>gramas (g)</option><option value="ml" ${ed&&ed.m==='ml'?'selected':''}>mililitros (ml)</option></select></label>
-    <label class="f"><span>Calorias (kcal)</span><input id="fk" type="number" inputmode="decimal" min="0" value="${ed?ed.k:''}"></label>
-    <label class="f"><span>Proteína (g)</span><input id="fp" type="number" inputmode="decimal" min="0" value="${ed?ed.p:''}"></label>
-    <label class="f"><span>Carboidrato (g)</span><input id="fc" type="number" inputmode="decimal" min="0" value="${ed?ed.c:''}"></label>
-    <label class="f"><span>Gordura (g)</span><input id="fg" type="number" inputmode="decimal" min="0" value="${ed?ed.g:''}"></label></div>
+  h+=`<h3 style="margin-top:16px;font-size:18px">${ed?'Editar alimento':'Novo alimento'}</h3>`;
+  if(!ed) h+=`<div class="grid2" style="margin-top:8px;align-items:end"><label class="f"><span>Código de barras</span><input id="fbar" type="text" inputmode="numeric" autocomplete="off" maxlength="20" placeholder="ex.: 7891000100103" value="${esc(pf&&pf.code||'')}"></label><button class="btn ghost block" data-act="bar-find">Buscar produto</button></div>
+    <p class="tag" style="margin-top:6px">Para produtos de mercado. Dica: na câmera do iPhone, toque nos números do código para copiá-los (Texto ao Vivo).</p>`;
+  if(pf) h+=`<div class="ins info" id="fsrc"><span class="ic">i</span><span>Valores de ${esc(pf.src)}${pf.src==='Open Food Facts'?' (base colaborativa)':''}. Confira com o rótulo ou a receita antes de salvar. Se mudar o tamanho da unidade, recalculo calorias e macros.</span></div>`;
+  h+=`<div class="grid2" style="margin-top:8px">
+    <label class="f"><span>Nome</span><input id="fn" type="text" maxlength="60" placeholder="ex.: Marmita de frango" value="${esc(val('n'))}" ${ed?'readonly':''}></label>
+    <label class="f"><span>Unidade</span><input id="fu" type="text" maxlength="20" placeholder="porção, copo, fatia" value="${esc(ed?ed.u:pf?pf.u:'porção')}"></label>
+    <label class="f"><span>Tamanho de 1 unidade</span><input id="fw" type="number" inputmode="decimal" min="1" placeholder="ex.: 200" value="${val('ug')}"></label>
+    <label class="f"><span>Medida</span><select id="fm"><option value="g" ${val('m')!=='ml'?'selected':''}>gramas (g)</option><option value="ml" ${val('m')==='ml'?'selected':''}>mililitros (ml)</option></select></label>
+    <label class="f"><span>Calorias (kcal)</span><input id="fk" type="number" inputmode="decimal" min="0" value="${val('k')}"></label>
+    <label class="f"><span>Proteína (g)</span><input id="fp" type="number" inputmode="decimal" min="0" value="${val('p')}"></label>
+    <label class="f"><span>Carboidrato (g)</span><input id="fc" type="number" inputmode="decimal" min="0" value="${val('c')}"></label>
+    <label class="f"><span>Gordura (g)</span><input id="fg" type="number" inputmode="decimal" min="0" value="${val('g')}"></label></div>
     <p class="tag" style="margin-top:8px">Preencha os valores de UMA unidade. Se deixar as calorias em branco, eu calculo pelos macros. Se deixar o tamanho em branco, uso 100.</p>
-    <button class="btn block" style="margin-top:12px" data-act="cf-save">${ed?'Salvar alterações':'Salvar alimento'}</button>${ed?'<button class="btn ghost block" style="margin-top:8px" data-act="cf-cancel">Cancelar</button>':''}</section>`;
+    <button class="btn block" style="margin-top:12px" data-act="cf-save">${ed?'Salvar alterações':'Salvar alimento'}</button>${ed||pf?'<button class="btn ghost block" style="margin-top:8px" data-act="cf-cancel">Cancelar</button>':''}</section>`;
   return h;
 }
+
+/* ---------- TABELA TACO: busca, adicionar ao dia e salvar em Meus alimentos ---------- */
+const norm=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+let _tacoN=null;
+function tacoFind(q){
+  const ws=norm(q).split(/[\s,]+/).filter(Boolean);if(!ws.length||norm(q).trim().length<2)return[];
+  _tacoN=_tacoN||D.taco.map(f=>norm(f[0]));const w0=ws[0];
+  return D.taco.map((f,i)=>({f,n:_tacoN[i]})).filter(x=>ws.every(w=>x.n.includes(w)))
+    .sort((a,b)=>(b.n.startsWith(w0)-a.n.startsWith(w0))||(a.n.length-b.n.length)).slice(0,15).map(x=>x.f);
+}
+const macTxt=(k,p,c,g)=>`${nf(k)} kcal · ${nf(p,1)} g prot. · ${nf(c,1)} g carbo · ${nf(g,1)} g gord.`;
+function tacoResults(){
+  const sel=S.tacoSel&&TACO[S.tacoSel];
+  if(sel){const g=S.tacoG||100,r=g/100;
+    return `<div class="tsel"><b>${esc(S.tacoSel)}</b><p class="tag">${esc(D.tacoCats[sel.cat]||'')} · por 100 g: ${macTxt(sel.k,sel.p,sel.c,sel.g)}</p>
+      <label class="f" style="margin-top:10px"><span>Quanto você comeu (g)</span><input id="tg" type="number" inputmode="decimal" min="1" max="3000" step="1" value="${g}"></label>
+      <p class="tag" id="tgk" style="margin-top:6px">≈ ${macTxt(sel.k*r,sel.p*r,sel.c*r,sel.g*r)}</p>
+      <div class="btnrow" style="margin-top:10px"><button class="btn" data-act="taco-add">Adicionar ao dia</button><button class="btn ghost" data-act="taco-my">Salvar em Meus alimentos</button></div>
+      <button class="btn ghost sm" style="margin-top:8px" data-act="taco-back">Voltar à busca</button></div>`;}
+  const q=S.tq||'';if(norm(q).trim().length<2)return `<p class="tag" style="margin-top:8px">Digite pelo menos 2 letras. Ex.: "frango grelhado", "banana", "pão de queijo".</p>`;
+  const rs=tacoFind(q);if(!rs.length)return `<p class="empty">Nada encontrado para "${esc(q)}". Tente outra palavra (ex.: "pescada" ou "salmão" em vez de "peixe"). A TACO é de 2011 e não tem tudo: se faltar, use o código de barras ou cadastre em Meus alimentos.</p>`;
+  return rs.map(f=>`<div class="lift" style="grid-template-columns:1fr auto"><div><b>${esc(f[0])}</b><p class="tag">${macTxt(f[2],f[3],f[4],f[5])} (100 g)</p></div><button class="btn ghost sm" data-act="taco-pick" data-n="${esc(f[0])}">Usar</button></div>`).join('');
+}
+function tacoCard(){
+  return `<div class="sh"><h2>Tabela TACO</h2></div><section class="card" id="taco"><p class="tag">${nf(D.taco.length)} alimentos brasileiros da Unicamp, com valores por 100 g. Funciona sem internet.</p>
+    <label class="f" style="margin-top:10px"><span>Buscar alimento</span><input id="tq" type="search" autocomplete="off" placeholder="ex.: pescada, abacate, cuscuz" value="${esc(S.tq||'')}"></label>
+    <div id="tres">${tacoResults()}</div></section>`;
+}
+
+/* ---------- CÓDIGO DE BARRAS (Open Food Facts) ---------- */
+// Preenche o formulário de "Meus alimentos"; quem salva é o usuário.
+async function barFind(){
+  const inp=$('#fbar'),code=(inp?inp.value:'').replace(/\D/g,'');
+  if(code.length<8||code.length>14){toast('Digite o código de barras: de 8 a 14 números.');return;}
+  toast('Buscando o produto…');
+  let j;
+  try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_pt,brands,serving_size,serving_quantity,quantity,nutriments`);j=await r.json();}
+  catch(e){toast('Sem conexão com o Open Food Facts. Tente de novo ou preencha pelo rótulo.');return;}
+  const p=j&&j.status===1&&j.product;
+  if(!p){toast('Produto não encontrado. Preencha pelo rótulo.');return;}
+  const nu=p.nutriments||{},v=k=>Math.max(0,Number(nu[k+'_100g'])||0);
+  const per={k:Number(nu['energy-kcal_100g'])||(Number(nu.energy_100g)||0)/4.184,p:v('proteins'),c:v('carbohydrates'),g:v('fat')};
+  if(!(per.k>0)&&!(per.p||per.c||per.g)){toast('Esse produto está sem tabela nutricional no Open Food Facts. Preencha pelo rótulo.');return;}
+  if(!(per.k>0))per.k=4*per.p+4*per.c+9*per.g;
+  const sq=Number(p.serving_quantity),ug=sq>=1&&sq<=2000?Math.round(sq*10)/10:100;
+  const m=/\bml\b/i.test(p.serving_size||'')||(!p.serving_size&&/\b(ml|l)\b/i.test(p.quantity||''))?'ml':'g';
+  const brand=String(p.brands||'').split(',')[0].trim(),nm0=String(p.product_name_pt||p.product_name||'').trim()||'Produto '+code;
+  const n=(brand&&!norm(nm0).includes(norm(brand))?`${nm0} (${brand})`:nm0).slice(0,60);
+  S.editFood=null;S.formBase=per;S.prefill=Object.assign({n,u:'porção',ug,m,src:'Open Food Facts',code},scaleBase(per,ug));
+  toast('Encontrado. Confira com o rótulo antes de salvar.');view();
+  try{$('#fn').scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}
+}
+// valores de UMA unidade a partir dos valores por 100 g/ml
+function scaleBase(b,ug){const r=ug/100,one=x=>Math.round(x*r*10)/10;return{k:Math.round(b.k*r),p:one(b.p),c:one(b.c),g:one(b.g)};}
 
 /* ---------- EVOLUÇÃO ---------- */
 function weightChart(list){

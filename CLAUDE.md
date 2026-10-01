@@ -9,17 +9,18 @@ PWA de treino, alimentação, água e evolução para um wide receiver de futebo
 ```bash
 npm install
 npm run build     # src/ + data/ -> dist/site (publicar) e dist/playbook-wr.html (arquivo único)
-npm test          # 10 arquivos de teste, cerca de 145 verificações, JSDOM
+npm test          # 11 arquivos de teste, cerca de 170 verificações, JSDOM
 npm run serve     # http://localhost:5173
 npm run data      # (Python, via scripts/py.mjs) planilha + training.json + app-data.json
-npm run data:app  # (Python, via scripts/py.mjs) só app-data.json, a partir de foods.py, units.py e training.json
+npm run data:app  # (Python, via scripts/py.mjs) só app-data.json, a partir de foods.py, units.py, training.json e taco.json
+npm run data:taco # (Python) extrai data/taco.json da planilha oficial da TACO e refaz app-data.json
 ```
 **Sempre rode `npm run build && npm test` antes de dizer que terminou.** Edite `src/` e `data/`; `dist/` é gerado e fica fora do Git.
 
 ## Mapa do código
 - `src/js/00-core.js`: utilidades (`$`, `esc`, `nf`, datas), estado global `S`, `Store` (armazenamento), metas (`targets()`), comida (`FOOD`, `UN`, `mac`, `fmtQty`, `consumed`), ciclo de 4 semanas, cronômetro de descanso.
 - `src/js/10-telas-hoje-treino.js`: `vHoje`, `vTreino`, `gymHtml` (séries), `PAIRS` (bi-set), atividade opcional `FLAG`, `weekCard`.
-- `src/js/20-telas-comida-evolucao-perfil.js`: `vComida`, "Meus alimentos" (`customCard`, `regCustom`, `seedCustom`), `vEvol`, `vPerfil`, `vSetup` (configuração inicial), backup (`bkFile`, `bkCopy`, `restoreBackup`, `bkDue`), tendência do peso (`trend`, `trendHtml`) e lembretes do iPhone (`remindersHtml`).
+- `src/js/20-telas-comida-evolucao-perfil.js`: `vComida`, "Meus alimentos" (`customCard`, `regCustom`, `seedCustom`), `vEvol`, `vPerfil`, `vSetup` (configuração inicial), backup (`bkFile`, `bkCopy`, `restoreBackup`, `bkDue`), tendência do peso (`trend`, `trendHtml`), lembretes do iPhone (`remindersHtml`), Tabela TACO (`tacoCard`, `tacoFind`, `tacoResults`) e código de barras (`barFind`, `scaleBase`).
 - `src/js/90-acoes.js`: um `click` e um `change` no `document` (delegação por `data-act`) e a inicialização.
 - As telas são funções que **devolvem uma string HTML**; `view()` troca o `innerHTML` de `#view`. Toda ação altera `S`/o dia, chama `saveDay(...)` e depois `view()`.
 - O build junta os 4 arquivos JS na ordem do nome. Eles compartilham o escopo global (não há módulos).
@@ -45,6 +46,7 @@ Veja `docs/ARQUITETURA.md` para o formato completo. Resumo:
 11. **Scripts Python no Windows:** abra arquivos com `encoding="utf-8"` (e `newline="\n"` ao gravar), senão o JSON sai corrompido ou com CRLF. Rode-os pelo `npm run data` (o `scripts/py.mjs` acha `python3`, `python` ou `py`).
 12. **`<details>` e box-sizing:** o conteúdo de `<details>` não herda o `box-sizing`; por isso há uma regra `details *{box-sizing:border-box}`. Sem ela, botões `block` passam da largura da tela.
 13. **Tendência do peso só sugere.** O ajuste só acontece no toque em "Aplicar sugestão" (`trend-apply`), que soma nos fatores de atividade e grava `trendAdj`.
+14. **TACO e código de barras:** `TACO[nome]` fica fora de `FOOD` (um alimento de "Meus alimentos" com o mesmo nome tem prioridade em `mac()`). A busca atualiza só `#tres` no evento `input`, sem `view()`, para o teclado do iPhone não fechar. O código de barras só **preenche** o formulário (`S.prefill`, `S.formBase`); quem salva é o usuário. Nos testes, simule `fetch` (veja `tests/taco.test.js`).
 
 ## Como fazer mudanças comuns
 - **Novo alimento da base:** `data/foods.py` + `data/units.py` (mesmo nome), depois `npm run data:app`. Atalho: `/novo-alimento`.

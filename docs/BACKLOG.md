@@ -13,6 +13,10 @@ Aviso na aba Evolução (`trendHtml`), com sugestão e botão "Aplicar sugestão
 
 ## 4. Conferir valores de comida
 Ceviche e café com proteína (`seedCustom` em `20-telas-...js`) são estimativas. Trocar pelos valores do rótulo/receita do dono. Revisar também as medidas caseiras em `data/units.py` se ele disser que uma concha, escumadeira ou colher é diferente.
+Agora há ferramentas para isso no app: **código de barras** (Open Food Facts) para produtos prontos e **Tabela TACO** para calcular receitas caseiras pelos ingredientes.
+
+## 4b. Tabela TACO e código de barras ✅ (30/09/2026)
+Busca na TACO (593 alimentos, offline) na aba Comida: adicionar ao dia em gramas ou salvar em Meus alimentos. Código de barras em Meus alimentos (Open Food Facts), que só preenche o formulário. Teste: `tests/taco.test.js`. Ideias: ler o código pela câmera (exigiria biblioteca), busca por nome de produtos (exigiria servidor intermediário).
 
 ## 5. Lembretes ✅ (30/09/2026)
 Passo a passo dentro do app (Perfil > Lembretes no iPhone), com os horários do cardápio e a água dividida em 7 avisos. **Atenção:** links do site abertos por Atalhos vão para o Safari, que no iPhone guarda dados separados do app instalado; por isso os avisos só lembram, e o app é aberto pelo ícone.

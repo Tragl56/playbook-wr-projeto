@@ -111,11 +111,13 @@ function targets(){
   return T;
 }
 const FOOD={};D.foods.forEach(f=>{FOOD[f[0]]={k:f[1],p:f[2],c:f[3],g:f[4],m:f[5]};});
+// TACO (Unicamp): valores por 100 g. Fica fora de FOOD para "Meus alimentos" com o mesmo nome terem prioridade.
+const TACO={};(D.taco||[]).forEach(f=>{TACO[f[0]]={k:f[2],p:f[3],c:f[4],g:f[5],cat:f[1]};});
 const UN=D.units;
-const mac=(n,g)=>{const f=FOOD[n];if(!f)return{k:0,p:0,c:0,g:0};const x=g/100;return{k:f.k*x,p:f.p*x,c:f.c*x,g:f.g*x};};
+const mac=(n,g)=>{const f=FOOD[n]||TACO[n];if(!f)return{k:0,p:0,c:0,g:0};const x=g/100;return{k:f.k*x,p:f.p*x,c:f.c*x,g:f.g*x};};
 const add=(a,b)=>{a.k+=b.k;a.p+=b.p;a.c+=b.c;a.g+=b.g;return a;};
 const ugOf=n=>UN[n]?UN[n][2]:1;
-function fmtQty(n,g){const u=UN[n];if(!u)return nf(g)+' g';const q=Math.round(g/u[2]*100)/100,qs=nf(q,q%1?1:0),unit=q>1?u[1]:u[0];return qs+' '+unit+(u[4]?'':' de '+u[5]);}
+function fmtQty(n,g){const u=UN[n];if(!u)return nf(g)+' g de '+n.charAt(0).toLowerCase()+n.slice(1);const q=Math.round(g/u[2]*100)/100,qs=nf(q,q%1?1:0),unit=q>1?u[1]:u[0];return qs+' '+unit+(u[4]?'':' de '+u[5]);}
 const mealMacItems=items=>items.reduce((t,f)=>add(t,mac(f[0],f[1])),{k:0,p:0,c:0,g:0});
 const mealItems=(type,i,dk)=>((dk&&dk.meals&&dk.meals[i])||D.plans[type][i][2]);
 function consumed(date){

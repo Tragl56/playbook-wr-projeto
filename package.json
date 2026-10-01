@@ -6,6 +6,7 @@
   "scripts": {
     "data": "node scripts/py.mjs spreadsheet/build_xlsx.py scripts/export_data.py",
     "data:app": "node scripts/py.mjs scripts/export_data.py",
+    "data:taco": "node scripts/py.mjs scripts/taco.py scripts/export_data.py",
     "build": "node scripts/build.mjs",
     "test": "node tests/run.js",
     "serve": "node scripts/serve.mjs",

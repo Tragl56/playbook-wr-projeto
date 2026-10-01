@@ -68,7 +68,15 @@ document.addEventListener('click',e=>{
   if(a==='addx'){const f=$('#xf').value,q=Number($('#xq').value);if(!(q>0)){toast('Informe a quantidade.');return;}
     const dk=day(date);dk.extras.push({f,g:Math.round(q*ugOf(f))});saveDay(date);view();return;}
   if(a==='cf-edit'){S.editFood=b.dataset.id;S.delFood=null;view();try{$('#fn').scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}return;}
-  if(a==='cf-cancel'){S.editFood=null;view();return;}
+  if(a==='cf-cancel'){S.editFood=null;S.prefill=null;S.formBase=null;view();return;}
+  if(a==='bar-find'){barFind();return;}
+  if(a==='taco-pick'){S.tacoSel=b.dataset.n;S.tacoG=100;$('#tres').innerHTML=tacoResults();try{$('#taco').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}return;}
+  if(a==='taco-back'){S.tacoSel=null;$('#tres').innerHTML=tacoResults();return;}
+  if(a==='taco-add'){const g=Math.round(Number($('#tg').value));if(!(g>=1&&g<=3000)){toast('Informe a quantidade em gramas, de 1 a 3000.');return;}
+    const dk=day(date);dk.extras.push({f:S.tacoSel,g});S.tacoSel=null;S.tq='';saveDay(date);toast('Adicionado ao dia.');view();return;}
+  if(a==='taco-my'){const t=TACO[S.tacoSel];if(!t)return;
+    S.editFood=null;S.formBase={k:t.k,p:t.p,c:t.c,g:t.g};S.prefill=Object.assign({n:S.tacoSel,u:'porção',ug:100,m:'g',src:'Tabela TACO'},scaleBase(S.formBase,100));
+    S.tacoSel=null;view();try{$('#fn').scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}return;}
   if(a==='cf-del'){
     const id=b.dataset.id;
     if(S.delFood!==id){S.delFood=id;view();return;}
@@ -86,7 +94,7 @@ document.addEventListener('click',e=>{
     if(!(k>0)){toast('Informe as calorias ou os macros.');return;}
     if(k>4000||p>500||c>500||g>500||[k,p,c,g].some(x=>x<0)){toast('Confira os valores: são de UMA unidade.');return;}
     if(ed)Object.assign(ed,{u,ug,m,k,p,c,g});else list.push({id:Date.now().toString(36),n,u,ug,m,k,p,c,g});
-    S.editFood=null;saveProfile();regCustom();toast('Alimento salvo.');view();return;}
+    S.editFood=null;S.prefill=null;S.formBase=null;saveProfile();regCustom();toast('Alimento salvo.');view();return;}
   if(a==='delx'){const dk=day(date);dk.extras.splice(+b.dataset.i,1);saveDay(date);view();return;}
   if(a==='addw'){const d=$('#wd').value,kg=Number($('#wk').value);if(!d||!(kg>20&&kg<300)){toast('Informe uma data e um peso válido em kg.');return;}
     S.weights=S.weights.filter(x=>x.d!==d);S.weights.push({d,kg});saveWeights();toast('Peso salvo.');view();return;}
@@ -124,6 +132,8 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{
   const t=e.target,date=ymd();
+  if(t.id==='fw'&&S.formBase){const ug=Number(t.value);if(ug>0){const v=scaleBase(S.formBase,ug);['k','p','c','g'].forEach(k=>{$('#f'+k).value=v[k];});}return;}
+  if(['fk','fp','fc','fg'].includes(t.id)){S.formBase=null;return;}
   if(t.id==='bkf'){const f=t.files&&t.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restoreBackup(String(r.result));r.onerror=()=>toast('Não consegui ler o arquivo.');r.readAsText(f);t.value='';return;}
   if(t.id==='xf'){const u=$('#xu');if(u)u.textContent=unitLabel(t.value);return;}
   if(t.dataset.note){const dk=day(date);dk.notes=dk.notes||{};dk.notes[t.dataset.note]=t.value;saveDay(date);return;}
@@ -146,6 +156,12 @@ document.addEventListener('change',e=>{
     if(lim&&(t.value===''||!(v>=lim[0]&&v<=lim[1]))){toast(`Valor fora da faixa: use de ${f(lim[0])} a ${f(lim[1])}.`);view();return;}
     if(!(v>0)&&path!=='pf'){toast('Valor inválido.');view();return;}}
   setPath(S.profile,path,v);saveProfile();view();
+});
+// busca da TACO: atualiza só a lista (sem recriar a tela, para o teclado não fechar)
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='tq'){S.tq=t.value;S.tacoSel=null;$('#tres').innerHTML=tacoResults();return;}
+  if(t.id==='tg'){const s=TACO[S.tacoSel],g=Number(t.value);if(!s)return;S.tacoG=g>0?g:S.tacoG;const r=(g>0?g:0)/100,el=$('#tgk');if(el)el.textContent='≈ '+macTxt(s.k*r,s.p*r,s.c*r,s.g*r);}
 });
 document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)go(b.dataset.tab);});
 function go(tab){S.tab=tab;view();const v=$('#view');v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');window.scrollTo(0,0);try{history.replaceState(null,'','#'+tab);}catch(e){}
